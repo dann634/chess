@@ -1,25 +1,50 @@
 package com.jackson.ui;
 
 import com.jackson.game.Game;
-import com.jackson.game.MoveTask;
+import com.jackson.game.pieces.MoveTask;
 import com.jackson.game.Player;
 import com.jackson.game.pieces.Piece;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class Board {
 
+    private Piece selectedPiece;
+
+    private SimpleBooleanProperty isBoardFacingWhite;
+
     private GridPane root;
 
+    private Player white;
+    private Player black;
+
     public Scene getScene() {
+        isBoardFacingWhite = new SimpleBooleanProperty(true);
+        isBoardFacingWhite.addListener((observableValue, aBoolean, current) -> {
+            //Rotates Board
+            if(current) {
+                root.setRotate(0);
+                Game.rotateAllPieces((short) 0);
+            } else {
+                root.setRotate(180);
+                Game.rotateAllPieces((short) 180);
+            }
+        });
         root = new GridPane();
-        addCellsToGrid(root); //Adds cells to board
+        addCellsToGrid(); //Adds cells to board
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add("file:src/main/resources/stylesheets/board.css");
@@ -27,9 +52,11 @@ public class Board {
     }
 
     public void drawBoard(Player white, Player black) {
-        for(Node node : root.getChildren()) {
-            ((VBox) node).getChildren().clear();
-        }
+
+        this.white = white;
+        this.black = black;
+
+        root.getChildren().removeIf(n -> n.getClass().getSimpleName().equals("ImageView"));
 
         List<Piece> allPieces = new ArrayList<>();
         allPieces.addAll(white.getPieces());
@@ -40,16 +67,58 @@ public class Board {
         }
     }
 
-    private void addCellsToGrid(GridPane pane) { //Adds cells to board
+    private void removeMovementIndicators() {
+       root.getChildren().removeIf(n -> n.getClass().getSimpleName().equals("Circle"));
+       root.prefHeight(root.getPrefHeight() + 0.0001); //Updates Gridpane
+    }
+
+    private void addCellsToGrid() { //Adds cells to board
         for (byte i = 0; i < 8; i++) {
             for (byte j = 0; j < 8; j++) {
-                pane.add(new Cell(i, j).getCell(), j, i);
+                root.add(new Cell(i, j).getCell(), j, i);
             }
         }
     }
 
+    private void addMovementIndicators(Set<byte[]> moves) {
+
+        removeMovementIndicators();
+
+        for(byte[] move : moves) {
+            Circle movementIndicator = initMovementIndicator(move[0], move[1]);
+            root.add(movementIndicator, move[1], move[0]);
+        }
+    }
+
+    private Circle initMovementIndicator(byte row, byte column) {
+        Circle circle = new Circle();
+        circle.setRadius(20);
+        circle.setTranslateX(18);
+        circle.setId("movementIndicator");
+
+        circle.setOnMouseClicked(mouseEvent -> {
+            //Call move piece
+            Game.move(this.selectedPiece, row, column);
+
+            //Calls rotate board
+            if(root.getRotate() == 0) {
+                this.isBoardFacingWhite.setValue(false);
+            } else {
+                this.isBoardFacingWhite.setValue(true);
+            }
+
+            removeMovementIndicators();
+        });
+
+        return circle;
+    }
+
     public boolean isCellOccupied(byte targetRow, byte targetColumn) {
         return false;
+    }
+
+    public GridPane getBoardRoot() {
+        return this.root;
     }
 
     class Cell {
@@ -71,9 +140,14 @@ public class Board {
             this.vBox.setOnMouseClicked(mouseEvent -> {
                 //Add movement indicators
                 this.pieceInCell = Game.getPieceInCell(row, column);
+                selectedPiece = this.pieceInCell;
                 if(this.pieceInCell != null) {
                     //Add Movement Indicators
+
                     MoveTask moveTask = new MoveTask(this.pieceInCell, Game.getAllPieces());
+                    moveTask.setOnSucceeded(workerStateEvent -> {
+                        addMovementIndicators(moveTask.getValue());
+                    });
                     Thread moveThread = new Thread(moveTask);
                     moveThread.setDaemon(true);
                     moveThread.start();

@@ -1,6 +1,7 @@
 .cell {
     -fx-min-height: 75;
     -fx-min-width: 75;
+    -fx-alignment: center;
 }
 
 #lightCell {
@@ -9,4 +10,9 @@
 
 #darkCell {
     -fx-background-color: #769656;
+}
+
+#movementIndicator {
+    -fx-opacity: 0.75;
+    -fx-fill: darkgrey;
 }

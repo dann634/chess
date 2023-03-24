@@ -22,9 +22,6 @@ public class Player {
         this.hasMoved = false;
     }
 
-    public void move(Piece selectedPiece) {
-
-    }
 
     public void initializePieces() {
         this.pieces = new ArrayList<>();
@@ -84,4 +81,6 @@ public class Player {
     public void setHasMoved(boolean hasMoved) {
         this.hasMoved = hasMoved;
     }
+
+
 }

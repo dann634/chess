@@ -8,12 +8,12 @@ public class King extends Piece {
     }
 
     @Override
-    protected Set<int[]> getAllMoves() {
+    protected Set<byte[]> getAllMoves() {
         return null;
     }
 
     @Override
-    protected Set<int[]> getValidMoves() {
+    protected Set<byte[]> getValidMoves(Piece[][] board) {
         return null;
     }
 }

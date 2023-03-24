@@ -7,8 +7,8 @@ import java.util.Set;
 
 public abstract class Piece {
 
-    private byte row;
-    private byte column;
+    protected byte row;
+    protected byte column;
     private boolean isWhite;
     private ImageView imageView;
 
@@ -20,9 +20,9 @@ public abstract class Piece {
     }
 
     //Moves
-    protected abstract Set<int[]> getAllMoves();
+    protected abstract Set<byte[]> getAllMoves();
 
-    protected abstract Set<int[]> getValidMoves();
+    protected abstract Set<byte[]> getValidMoves(Piece[][] board);
 
 
     public byte getRow() {
@@ -66,4 +66,24 @@ public abstract class Piece {
         imageView.setMouseTransparent(true);
         return imageView;
     }
+
+    protected Set<byte[]> areMovesValid(Set<byte[]> moves, Piece[][] board) {
+        moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7); //On board
+        moves.removeIf(n -> board[n[0]][n[1]] != null && isPieceSameColour(this, board[n[0]][n[1]]));
+        return moves;
+    }
+
+    protected boolean isPieceSameColour(Piece piece1, Piece piece2) {
+
+        if(piece1 == null || piece2 == null) {
+            return false;
+        }
+
+        if(piece1.isWhite == piece2.isWhite) {
+            return true;
+        }
+        return false;
+    }
+
+
 }

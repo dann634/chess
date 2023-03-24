@@ -6,13 +6,17 @@ import javafx.application.Platform;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Game {
 
     private static Player white;
     private static Player black;
 
-    public void start(Board board) {
+    private static Board board;
+
+    public void start(Board lboard) {
+        board = lboard;
 
         Thread gameThread = new Thread(() -> {
 
@@ -36,10 +40,12 @@ public class Game {
                     white.setHasMoved(false);
                     white.setTurn(false); //Disables Pieces
                     black.setTurn(true); //Enables Pieces
+                    System.out.println("White has moved");
                 } else if(black.hasMoved()) {
                     black.setHasMoved(false);
                     black.setTurn(false); //Disables Pieces
                     white.setTurn(true); //Enables Pieces
+                    System.out.println("Black has moved");
                 }
 
                 try {
@@ -72,5 +78,26 @@ public class Game {
         allPieces.addAll(black.getPieces());
 
         return allPieces;
+    }
+
+    public static void rotateAllPieces(short rotation) {
+        for(Piece piece : getAllPieces()) {
+            piece.getImageView().setRotate(rotation);
+        }
+    }
+
+    public static void move(Piece piece, byte row, byte column) {
+        Player enemyPlayer = piece.isWhite() ? black : white;
+
+        for(Piece enemyPiece : enemyPlayer.getPieces()) {
+            if(enemyPiece.getRow() == row && enemyPiece.getColumn() == column) {
+                enemyPlayer.getPieces().remove(enemyPiece); //Remove enemy piece
+                break;
+            }
+        }
+
+        piece.setColumn(column);
+        piece.setRow(row);
+        board.drawBoard(white, black);
     }
 }
