@@ -49,11 +49,12 @@ public class Player {
             //Disable / Enable Pieces
             if(this.pieces != null) {
                 for (Piece piece : this.pieces) {
-                    piece.getImageView().setDisable(current);
+                    piece.getImageView().setDisable(!current);
                 }
-            }
+            } // FIXME: 24/03/2023 THIS SHIT IS WILDING
         });
         return booleanProperty;
+
     }
 
 

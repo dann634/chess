@@ -68,8 +68,11 @@ public class Board {
     }
 
     private void removeMovementIndicators() {
-       root.getChildren().removeIf(n -> n.getClass().getSimpleName().equals("Circle"));
-       root.prefHeight(root.getPrefHeight() + 0.0001); //Updates Gridpane
+        if (root.getChildren().removeIf(n -> n.getClass().getSimpleName().equals("Circle"))
+        ) {
+            System.out.println("Circles Removed");
+        }
+        root.setPrefHeight(root.getPrefHeight() + 0.0001); //Updates Gridpane
     }
 
     private void addCellsToGrid() { //Adds cells to board
@@ -82,6 +85,7 @@ public class Board {
 
     private void addMovementIndicators(Set<byte[]> moves) {
 
+        System.out.println(moves.size());
         removeMovementIndicators();
 
         for(byte[] move : moves) {
@@ -138,15 +142,24 @@ public class Board {
             this.vBox.setId(isLight ? "lightCell" : "darkCell");
 
             this.vBox.setOnMouseClicked(mouseEvent -> {
+
                 //Add movement indicators
                 this.pieceInCell = Game.getPieceInCell(row, column);
                 selectedPiece = this.pieceInCell;
+
+                root.setPrefHeight(root.getPrefHeight() + 0.001);
+
                 if(this.pieceInCell != null) {
                     //Add Movement Indicators
+                    removeMovementIndicators();
 
                     MoveTask moveTask = new MoveTask(this.pieceInCell, Game.getAllPieces());
                     moveTask.setOnSucceeded(workerStateEvent -> {
-                        addMovementIndicators(moveTask.getValue());
+                        if(this.pieceInCell.isWhite() && white.isTurn()) {
+                            addMovementIndicators(moveTask.getValue());
+                        } else if(this.pieceInCell.isWhite() && black.isTurn()) {
+                            addMovementIndicators(moveTask.getValue());
+                        }
                     });
                     Thread moveThread = new Thread(moveTask);
                     moveThread.setDaemon(true);

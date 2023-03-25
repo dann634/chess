@@ -88,6 +88,7 @@ public class Game {
 
     public static void move(Piece piece, byte row, byte column) {
         Player enemyPlayer = piece.isWhite() ? black : white;
+        Player friendlyPlayer = piece.isWhite() ? white : black;
 
         for(Piece enemyPiece : enemyPlayer.getPieces()) {
             if(enemyPiece.getRow() == row && enemyPiece.getColumn() == column) {
@@ -98,6 +99,11 @@ public class Game {
 
         piece.setColumn(column);
         piece.setRow(row);
+
+        friendlyPlayer.setHasMoved(true);
+
         board.drawBoard(white, black);
     }
+
+
 }

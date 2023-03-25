@@ -34,11 +34,12 @@ public class Pawn extends Piece {
 
         //Code diagonal taking
         //If move is not in same column as piece check if empty or if friendly piece, remove it
-        moves.removeIf(n -> n[1] != this.getColumn() && (board[n[0]][n[1]]) == null || isPieceSameColour(this, board[n[0]][n[1]]));
+        moves.removeIf(n -> n[1] != this.getColumn() && ((board[n[0]][n[1]]) == null || isPieceSameColour(this, board[n[0]][n[1]])));
         if(this.getRow() != this.startingRow) { //If moved from starting pos
             moves.removeIf(n -> n[0] == (this.getRow() + (this.moveForward * 2)));
         }
         // FIXME: 24/03/2023 Pawn can take directly
+        moves.removeIf(n -> n[1] == this.getColumn() && board[n[0]][n[1]] != null);
 
         return moves;
     }
