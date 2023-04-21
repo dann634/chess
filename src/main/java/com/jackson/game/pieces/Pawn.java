@@ -39,7 +39,7 @@ public class Pawn extends Piece {
             moves.removeIf(n -> n[0] == (this.getRow() + (this.moveForward * 2)));
         }
         // FIXME: 24/03/2023 Pawn can take directly
-        moves.removeIf(n -> n[1] == this.getColumn() && board[n[0]][n[1]] != null);
+        moves.removeIf(n -> n[1] == this.getColumn() && board[n[0]][n[1]] != null); //If move col and pawn col are same and the cell has a piece
 
         return moves;
     }

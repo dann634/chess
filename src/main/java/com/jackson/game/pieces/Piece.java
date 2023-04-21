@@ -67,7 +67,7 @@ public abstract class Piece {
         return imageView;
     }
 
-    protected Set<byte[]> areMovesValid(Set<byte[]> moves, Piece[][] board) {
+    protected Set<byte[]> areMovesValid(Set<byte[]> moves, Piece[][] board) { //Basic Range Check and Friendly Check
         moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7); //On board
         moves.removeIf(n -> board[n[0]][n[1]] != null && isPieceSameColour(this, board[n[0]][n[1]]));
         return moves;

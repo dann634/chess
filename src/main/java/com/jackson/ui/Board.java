@@ -1,17 +1,13 @@
 package com.jackson.ui;
 
 import com.jackson.game.Game;
-import com.jackson.game.pieces.MoveTask;
 import com.jackson.game.Player;
+import com.jackson.game.pieces.MoveTask;
 import com.jackson.game.pieces.Piece;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
@@ -31,12 +27,17 @@ public class Board {
     private Player white;
     private Player black;
 
+    private Thread moveThread;
+
+    private List<Circle> movementIndicators;
+
     public Scene getScene() {
+        this.movementIndicators = new ArrayList<>();
         isBoardFacingWhite = new SimpleBooleanProperty(true);
         isBoardFacingWhite.addListener((observableValue, aBoolean, current) -> {
             //Rotates Board
             if(current) {
-                root.setRotate(0);
+                this.root.setRotate(0);
                 Game.rotateAllPieces((short) 0);
             } else {
                 root.setRotate(180);
@@ -67,12 +68,16 @@ public class Board {
         }
     }
 
+    private void selfDestructBoardAndAddPiecesAgain() {
+        this.root.getChildren().clear();
+        addCellsToGrid();
+        drawBoard(white, black);
+    }
+
     private void removeMovementIndicators() {
-        if (root.getChildren().removeIf(n -> n.getClass().getSimpleName().equals("Circle"))
-        ) {
-            System.out.println("Circles Removed");
-        }
-        root.setPrefHeight(root.getPrefHeight() + 0.0001); //Updates Gridpane
+        // FIXME: 20/04/2023
+        this.root.getChildren().removeAll(this.movementIndicators);
+        this.movementIndicators.clear();
     }
 
     private void addCellsToGrid() { //Adds cells to board
@@ -83,13 +88,11 @@ public class Board {
         }
     }
 
-    private void addMovementIndicators(Set<byte[]> moves) {
-
-        System.out.println(moves.size());
-        removeMovementIndicators();
+    public void addMovementIndicators(Set<byte[]> moves) {
 
         for(byte[] move : moves) {
             Circle movementIndicator = initMovementIndicator(move[0], move[1]);
+            movementIndicators.add(movementIndicator);
             root.add(movementIndicator, move[1], move[0]);
         }
     }
@@ -102,6 +105,7 @@ public class Board {
 
         circle.setOnMouseClicked(mouseEvent -> {
             //Call move piece
+
             Game.move(this.selectedPiece, row, column);
 
             //Calls rotate board
@@ -115,6 +119,10 @@ public class Board {
         });
 
         return circle;
+    }
+
+    private Board getInstance() {
+        return this;
     }
 
     public boolean isCellOccupied(byte targetRow, byte targetColumn) {
@@ -132,6 +140,8 @@ public class Board {
         private VBox vBox;
         private Piece pieceInCell;
 
+        private MoveTask moveTask;
+
         public Cell(byte row, byte column) {
             this.row = row;
             this.column = column;
@@ -143,33 +153,38 @@ public class Board {
 
             this.vBox.setOnMouseClicked(mouseEvent -> {
 
+                removeMovementIndicators();
+
                 //Add movement indicators
                 this.pieceInCell = Game.getPieceInCell(row, column);
                 selectedPiece = this.pieceInCell;
 
-                root.setPrefHeight(root.getPrefHeight() + 0.001);
-
                 if(this.pieceInCell != null) {
                     //Add Movement Indicators
-                    removeMovementIndicators();
 
-                    MoveTask moveTask = new MoveTask(this.pieceInCell, Game.getAllPieces());
+//                    selfDestructBoardAndAddPiecesAgain();
+
+                    moveTask = new MoveTask(this.pieceInCell, Game.getAllPieces(), getInstance());
+
                     moveTask.setOnSucceeded(workerStateEvent -> {
-                        if(this.pieceInCell.isWhite() && white.isTurn()) {
-                            addMovementIndicators(moveTask.getValue());
-                        } else if(this.pieceInCell.isWhite() && black.isTurn()) {
-                            addMovementIndicators(moveTask.getValue());
-                        }
+                        //Add movement indicators
+                        removeMovementIndicators();
+                        addMovementIndicators(moveTask.getValue());
                     });
-                    Thread moveThread = new Thread(moveTask);
-                    moveThread.setDaemon(true);
-                    moveThread.start();
+
+                    moveThread = new Thread(moveTask);
+                    if((selectedPiece.isWhite() && Game.isWhiteTurn()) || (!selectedPiece.isWhite() && !Game.isWhiteTurn())) {
+                        moveThread.start();
+                    }
+
+
                 }
+
             });
 
+
+
         }
-
-
 
         public VBox getCell() {
             return this.vBox;

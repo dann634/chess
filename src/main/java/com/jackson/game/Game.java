@@ -3,6 +3,10 @@ package com.jackson.game;
 import com.jackson.game.pieces.Piece;
 import com.jackson.ui.Board;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +17,13 @@ public class Game {
     private static Player white;
     private static Player black;
 
+    private static BooleanProperty isWhiteTurn;
+
     private static Board board;
 
     public void start(Board lboard) {
         board = lboard;
+        isWhiteTurn = initTurnProperty();
 
         Thread gameThread = new Thread(() -> {
 
@@ -27,10 +34,6 @@ public class Game {
             white.initializePieces();
             black.initializePieces();
 
-            //Set turns
-            white.setTurn(true);
-            black.setTurn(false);
-
             //Draw board for first time
             Platform.runLater(() -> board.drawBoard(white, black));
 
@@ -38,14 +41,10 @@ public class Game {
             while(true) {
                 if(white.hasMoved()) {
                     white.setHasMoved(false);
-                    white.setTurn(false); //Disables Pieces
-                    black.setTurn(true); //Enables Pieces
-                    System.out.println("White has moved");
+                    isWhiteTurn.set(false);
                 } else if(black.hasMoved()) {
                     black.setHasMoved(false);
-                    black.setTurn(false); //Disables Pieces
-                    white.setTurn(true); //Enables Pieces
-                    System.out.println("Black has moved");
+                    isWhiteTurn.set(true);
                 }
 
                 try {
@@ -105,5 +104,22 @@ public class Game {
         board.drawBoard(white, black);
     }
 
+    private SimpleBooleanProperty initTurnProperty() {
+        SimpleBooleanProperty property = new SimpleBooleanProperty(true);
+        property.addListener((observableValue, aBoolean, t1) -> {
+            white.setPiecesEnabled(t1);
+            black.setPiecesEnabled(!t1);
+        });
+        return property;
+    }
 
+    public static boolean isWhiteTurn() {
+        return isWhiteTurn.get();
+    }
+
+    // TODO: 28/03/2023 Add isWhiteTurnProperty
+
+    public static Board getBoard() {
+        return board;
+    }
 }

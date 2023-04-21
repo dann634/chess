@@ -12,13 +12,11 @@ import java.util.List;
 public class Player {
 
     private boolean isWhite;
-    private BooleanProperty isTurn;
     private boolean hasMoved;
     private List<Piece> pieces;
 
     public Player(boolean isWhite) {
         this.isWhite = isWhite;
-        this.isTurn = isTurnProperty();
         this.hasMoved = false;
     }
 
@@ -42,20 +40,6 @@ public class Player {
         this.pieces.add(new King(kingRow, (byte) 4, this.isWhite));
     }
 
-    private SimpleBooleanProperty isTurnProperty() { //If turn logic
-        SimpleBooleanProperty booleanProperty = new SimpleBooleanProperty();
-        booleanProperty.addListener((observableValue, old, current) -> {
-            //Update Pieces
-            //Disable / Enable Pieces
-            if(this.pieces != null) {
-                for (Piece piece : this.pieces) {
-                    piece.getImageView().setDisable(!current);
-                }
-            } // FIXME: 24/03/2023 THIS SHIT IS WILDING
-        });
-        return booleanProperty;
-
-    }
 
 
 
@@ -63,13 +47,6 @@ public class Player {
         return isWhite;
     }
 
-    public boolean isTurn() {
-        return isTurn.get();
-    }
-
-    public void setTurn(boolean isTurn) {
-        this.isTurn.set(isTurn);
-    }
 
     public List<Piece> getPieces() {
         return pieces;
@@ -81,6 +58,12 @@ public class Player {
 
     public void setHasMoved(boolean hasMoved) {
         this.hasMoved = hasMoved;
+    }
+
+    public void setPiecesEnabled(boolean isEnabled) {
+        for(Piece piece : this.pieces) {
+            piece.getImageView().setDisable(!isEnabled);
+        }
     }
 
 

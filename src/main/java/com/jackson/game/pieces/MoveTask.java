@@ -1,5 +1,8 @@
 package com.jackson.game.pieces;
 
+import com.jackson.game.Game;
+import com.jackson.ui.Board;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 import java.util.List;
@@ -9,10 +12,12 @@ public class MoveTask extends Task<Set<byte[]>> {
 
     private final Piece piece;
     private final List<Piece> allPieces;
+    private Board board;
 
-    public MoveTask(Piece piece, List<Piece> allPieces) {
+    public MoveTask(Piece piece, List<Piece> allPieces, Board board) {
         this.piece = piece;
         this.allPieces = allPieces;
+        this.board = Game.getBoard();
     }
 
     @Override
@@ -25,8 +30,12 @@ public class MoveTask extends Task<Set<byte[]>> {
         }
 
         //Call polymorphic move method parsing board
-        return this.piece.getValidMoves(board);
+        Set<byte[]> moves = this.piece.getValidMoves(board);
 
 
+        return moves;
     }
+
+
+
 }
