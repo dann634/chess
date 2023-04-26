@@ -1,6 +1,6 @@
 package com.jackson.game.pieces;
 
-import java.util.Set;
+import java.util.List;
 
 public class Rook extends Piece {
 
@@ -9,12 +9,12 @@ public class Rook extends Piece {
     }
 
     @Override
-    protected Set<byte[]> getAllMoves() {
+    protected List<byte[]> getAllMoves() {
         return null;
     }
 
     @Override
-    protected Set<byte[]> getValidMoves(Piece[][] board) {
+    public List<byte[]> getValidMoves(Piece[][] board) {
         return null;
     }
 }

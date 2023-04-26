@@ -7,6 +7,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +20,12 @@ public class Game {
 
     private static BooleanProperty isWhiteTurn;
 
-    private static Board board;
+    private Piece[][] basicBoard;
 
-    public void start(Board lboard) {
-        board = lboard;
+
+    public void start(Stage stage) {
+        this.basicBoard = new Piece[8][8];
+        Board board = new Board(stage, this.basicBoard, this);
         isWhiteTurn = initTurnProperty();
 
         Thread gameThread = new Thread(() -> {
@@ -31,11 +34,11 @@ public class Game {
             black = new Player(false);
 
             //Add all pieces
-            white.initializePieces();
-            black.initializePieces();
+            white.initializePieces(this.basicBoard);
+            black.initializePieces(this.basicBoard);
 
             //Draw board for first time
-            Platform.runLater(() -> board.drawBoard(white, black));
+            Platform.runLater(() -> board.drawBoard(this.basicBoard));
 
             //Main Game Loop
             while(true) {
@@ -100,8 +103,6 @@ public class Game {
         piece.setRow(row);
 
         friendlyPlayer.setHasMoved(true);
-
-        board.drawBoard(white, black);
     }
 
     private SimpleBooleanProperty initTurnProperty() {
@@ -119,7 +120,16 @@ public class Game {
 
     // TODO: 28/03/2023 Add isWhiteTurnProperty
 
-    public static Board getBoard() {
-        return board;
+
+    public Piece[][] getBasicBoard() {
+        return basicBoard;
     }
+
+    public void move(Piece selectedPiece, byte[] move) {
+        this.basicBoard[selectedPiece.getColumn()][selectedPiece.getRow()] = null;
+        this.basicBoard[move[0]][move[1]] = selectedPiece;
+
+        //Update Board
+    }
+
 }

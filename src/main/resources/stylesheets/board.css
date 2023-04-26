@@ -16,3 +16,10 @@
     -fx-opacity: 0.75;
     -fx-fill: darkgrey;
 }
+
+#rightMenuVbox {
+    -fx-background-color: #272522;
+    -fx-alignment: center;
+    -fx-min-width: 25;
+    -fx-padding: 5px;
+}

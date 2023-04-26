@@ -1,7 +1,7 @@
 package com.jackson.game.pieces;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Knight extends Piece {
 
@@ -10,8 +10,8 @@ public class Knight extends Piece {
     }
 
     @Override
-    protected Set<byte[]> getAllMoves() {
-        Set<byte[]> allMoves = new HashSet<>();
+    protected List<byte[]> getAllMoves() {
+        List<byte[]> allMoves = new ArrayList<>();
 
         //Forward
         allMoves.add(new byte[]{(byte) (this.getRow() - 2), (byte) (this.getColumn() - 1)});
@@ -29,11 +29,19 @@ public class Knight extends Piece {
         allMoves.add(new byte[]{(byte) (this.getRow() + 1), (byte) (this.getColumn() - 2)});
         allMoves.add(new byte[]{(byte) (this.getRow() - 1), (byte) (this.getColumn() - 2)});
 
+        for(byte[] move : allMoves) {
+            byte temp = move[0];
+            move[0] = move[1];
+            move[1] = temp;
+        } // FIXME: 25/04/2023 Change this later
+
         return allMoves;
     }
 
     @Override
-    protected Set<byte[]> getValidMoves(Piece[][] board) {
-        return areMovesValid(getAllMoves(), board);
+    public List<byte[]> getValidMoves(Piece[][] board) {
+        List<byte[]> moves = getAllMoves();
+        areMovesOnBoard(moves);
+        return moves;
     }
 }

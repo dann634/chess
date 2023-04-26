@@ -3,7 +3,7 @@ package com.jackson.game.pieces;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-import java.util.Set;
+import java.util.List;
 
 public abstract class Piece {
 
@@ -20,9 +20,13 @@ public abstract class Piece {
     }
 
     //Moves
-    protected abstract Set<byte[]> getAllMoves();
+    protected abstract List<byte[]> getAllMoves();
 
-    protected abstract Set<byte[]> getValidMoves(Piece[][] board);
+    public abstract List<byte[]> getValidMoves(Piece[][] board);
+
+    protected void areMovesOnBoard(List<byte[]> moves) {
+        moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
+    }
 
 
     public byte getRow() {
@@ -63,14 +67,9 @@ public abstract class Piece {
         ImageView imageView = new ImageView(new Image(filePath));
         imageView.setFitHeight(75);
         imageView.setFitWidth(75);
+        imageView.toBack();
         imageView.setMouseTransparent(true);
         return imageView;
-    }
-
-    protected Set<byte[]> areMovesValid(Set<byte[]> moves, Piece[][] board) { //Basic Range Check and Friendly Check
-        moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7); //On board
-        moves.removeIf(n -> board[n[0]][n[1]] != null && isPieceSameColour(this, board[n[0]][n[1]]));
-        return moves;
     }
 
     protected boolean isPieceSameColour(Piece piece1, Piece piece2) {

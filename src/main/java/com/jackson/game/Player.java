@@ -21,7 +21,7 @@ public class Player {
     }
 
 
-    public void initializePieces() {
+    public void initializePieces(Piece[][] board) {
         this.pieces = new ArrayList<>();
         byte pawnRow = (byte) (this.isWhite ? 6 : 1);
         byte kingRow = (byte) (this.isWhite ? 7 : 0);
@@ -29,6 +29,7 @@ public class Player {
         for (int i = 0; i < 8; i++) {
             this.pieces.add(new Pawn(pawnRow, (byte) i, this.isWhite));
         }
+        this.pieces.add(new Pawn((byte)5, (byte)5, this.isWhite));
         //Everything else
         this.pieces.add(new Rook(kingRow, (byte) 0, this.isWhite));
         this.pieces.add(new Rook(kingRow, (byte) 7, this.isWhite));
@@ -38,6 +39,10 @@ public class Player {
         this.pieces.add(new Bishop(kingRow, (byte) 5, this.isWhite));
         this.pieces.add(new Queen(kingRow, (byte) 3, this.isWhite));
         this.pieces.add(new King(kingRow, (byte) 4, this.isWhite));
+
+        for(Piece piece : this.pieces) {
+            board[piece.getColumn()][piece.getRow()] = piece;
+        }
     }
 
 

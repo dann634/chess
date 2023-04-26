@@ -16,12 +16,8 @@ public class Main extends Application {
         stage.setTitle("Chess");
         stage.setResizable(false);
 
-        Board board = new Board();
-        stage.setScene(board.getScene());
-
         Game game = new Game();
-        game.start(board);
+        game.start(stage);
 
-        stage.show();
     }
 }
