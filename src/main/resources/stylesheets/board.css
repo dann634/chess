@@ -21,5 +21,11 @@
     -fx-background-color: #272522;
     -fx-alignment: center;
     -fx-min-width: 25;
-    -fx-padding: 5px;
+    -fx-padding: 20;
+}
+
+#timeLabel {
+    -fx-text-fill: white;
+    -fx-font-size: 45;
+    -fx-font-weight: bold;
 }

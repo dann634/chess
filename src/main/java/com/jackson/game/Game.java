@@ -22,10 +22,12 @@ public class Game {
 
     private Piece[][] basicBoard;
 
+    private Board board;
+
 
     public void start(Stage stage) {
         this.basicBoard = new Piece[8][8];
-        Board board = new Board(stage, this.basicBoard, this);
+        this.board = new Board(stage, this.basicBoard, this);
         isWhiteTurn = initTurnProperty();
 
         Thread gameThread = new Thread(() -> {
@@ -127,7 +129,9 @@ public class Game {
 
     public void move(Piece selectedPiece, byte[] move) {
         this.basicBoard[selectedPiece.getColumn()][selectedPiece.getRow()] = null;
+        this.basicBoard[move[0]][move[1]] = null;
         this.basicBoard[move[0]][move[1]] = selectedPiece;
+        this.board.clearAllIndicators();
 
         //Update Board
     }

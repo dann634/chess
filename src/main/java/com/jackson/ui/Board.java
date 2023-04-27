@@ -1,14 +1,12 @@
 package com.jackson.ui;
 
 import com.jackson.game.Game;
-import com.jackson.game.pieces.Pawn;
 import com.jackson.game.pieces.Piece;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.SplitPane;
-import javafx.scene.image.Image;
+import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -24,7 +22,7 @@ public class Board {
     private SimpleBooleanProperty isBoardFacingWhite;
     private GridPane root;
     private AnchorPane parentRoot;
-    private SplitPane splitPane;
+    private HBox HBox;
     private Piece[][] board;
     private Game game;
     private Cell[][] cells;
@@ -49,24 +47,20 @@ public class Board {
         this.floatingPiece = initFloatingPiece();
         this.floatingPiece.setVisible(true);
         this.parentRoot = new AnchorPane();
+        this.parentRoot.setId("anchorPane");
 
-        this.splitPane = new SplitPane();
-
-        VBox vBox = new VBox(8);
-        vBox.setId("rightMenuVbox");
-
-        this.splitPane.getItems().add(vBox);
+        this.HBox = new HBox();
 
         this.isBoardFacingWhite = new SimpleBooleanProperty(true);
         this.isBoardFacingWhite.addListener((observableValue, aBoolean, current) -> {
             //Rotates Board
-            if (current) {
-                this.root.setRotate(0);
-                Game.rotateAllPieces((short) 0);
-            } else {
-                root.setRotate(180);
-                Game.rotateAllPieces((short) 180);
-            }
+//            if (current) {
+//                this.root.setRotate(0);
+//                Game.rotateAllPieces((short) 0);
+//            } else {
+//                root.setRotate(180);
+//                Game.rotateAllPieces((short) 180);
+//            }
         });
         this.root = new GridPane();
         addCellsToGrid(); //Adds cells to board
@@ -74,12 +68,40 @@ public class Board {
         this.parentRoot.getChildren().add(this.root);
         this.parentRoot.getChildren().add(this.floatingPiece);
 
-
-        this.splitPane.getItems().add(0, this.parentRoot);
-        Scene scene = new Scene(this.splitPane);
+//        this.HBox.getChildren().add(this.parentRoot);
+//        this.HBox.getChildren().add(getRightMenu());
+        Scene scene = new Scene(this.parentRoot);
         scene.getStylesheets().add("file:src/main/resources/stylesheets/board.css");
         return scene;
     }
+
+    private VBox getRightMenu() {
+
+        VBox mainRoot = new VBox();
+        mainRoot.setAlignment(Pos.CENTER);
+        mainRoot.setId("rightMenuVbox");
+
+        Label topTime = new Label("0:00");
+        topTime.setId("timeLabel");
+        HBox topHbox = new HBox();
+        topHbox.getChildren().add(topTime);
+
+        Pane divider = new Pane();
+        divider.setPrefHeight(mainRoot.getHeight());
+        System.out.println(mainRoot.getHeight());
+
+        Label bottomTime = new Label("0:00");
+        bottomTime.setId("timeLabel");
+        HBox bottomHbox = new HBox();
+        bottomHbox.getChildren().add(bottomTime);
+
+        mainRoot.getChildren().add(topHbox);
+        mainRoot.getChildren().add(divider);
+        mainRoot.getChildren().add(bottomHbox);
+
+        return mainRoot;
+    }
+
 
     public void drawBoard(Piece[][] board) {
         for(int columns = 0; columns < board.length; columns++) {
@@ -105,6 +127,9 @@ public class Board {
         byte[] index = new byte[2];
         index[0] =  (byte)(mouseX / 75);
         index[1] = (byte) (mouseY / 75);
+
+        //account for board rotation
+
         return index;
     }
 
@@ -149,6 +174,8 @@ public class Board {
             this.pane.setId(isLight ? "lightCell" : "darkCell");
             this.indicator = initMovementIndicator();
             this.pane.getChildren().add(this.indicator);
+            this.pane.toFront();
+            this.indicator.toFront();
             pane.addEventHandler(MouseEvent.MOUSE_CLICKED, new MouseClickedHandler()); //Adds event handling to pane
             pane.addEventHandler(MouseEvent.MOUSE_DRAGGED, new MouseDraggedHandler());
             pane.addEventHandler(MouseEvent.MOUSE_RELEASED, new MouseDroppedHandler());
@@ -198,6 +225,8 @@ public class Board {
                 isPieceTakenHostage = true;
 
                 byte[] gridIndex = getGridIndexFromMousePos(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+
+                // FIXME: 26/04/2023 
                 Piece piece = board[gridIndex[0]][gridIndex[1]];
                 if(piece != null) {
                     floatingPiece.setImage(piece.getImageView().getImage());
@@ -231,6 +260,10 @@ public class Board {
             }
             if(validSquare) {
                 //Move Piece
+                if(board[gridIndex[0]][gridIndex[1]] != null) {
+                    root.getChildren().remove((board[gridIndex[0]][gridIndex[1]].getImageView()));
+
+                }
                 game.move(selectedPiece, gridIndex);
                 root.getChildren().remove(selectedPiece.getImageView());
                 root.add(selectedPiece.getImageView(), gridIndex[0], gridIndex[1]);
@@ -238,35 +271,35 @@ public class Board {
                 selectedPiece.setColumn(gridIndex[0]);
                 selectedPiece.setRow(gridIndex[1]);
                 isBoardFacingWhite.setValue(!selectedPiece.isWhite());
-                for(byte[] move : currentMoves) {
-                    cells[move[0]][move[1]].setMovementIndicatorVisibility(false);
-                }
-                currentMoves.clear();
+
             }
         }
     }
 
     private void showMoves(MouseEvent mouseEvent) {
-
-
-
+        clearAllIndicators();
         byte[] index = getGridIndexFromMousePos(mouseEvent.getSceneX(), mouseEvent.getSceneY());
         Piece[][] board = game.getBasicBoard();
         Piece piece = board[index[0]][index[1]];
-
-
 
         if(piece != null) {
 
             // FIXME: 26/04/2023 Basic board and gridpane don't match
 
-            if(piece.isWhite() && !isBoardFacingWhite.getValue() || !piece.isWhite() && isBoardFacingWhite.getValue()) {
-                return;
+            if(piece.isWhite() && isBoardFacingWhite.getValue() || !piece.isWhite() && !isBoardFacingWhite.getValue()) {
+                this.selectedPiece = piece;
+                this.currentMoves.addAll(piece.getValidMoves(board));
+                setMovementIndicatorSquares(this.currentMoves);
             }
-            this.selectedPiece = piece;
-            this.currentMoves.addAll(piece.getValidMoves(board));
-            setMovementIndicatorSquares(this.currentMoves);
+
         }
+    }
+
+    public void clearAllIndicators() {
+        for(byte[] move : currentMoves) {
+            cells[move[0]][move[1]].setMovementIndicatorVisibility(false);
+        }
+        currentMoves.clear();
     }
 
 }
