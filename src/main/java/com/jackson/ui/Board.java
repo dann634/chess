@@ -5,6 +5,7 @@ import com.jackson.game.pieces.Piece;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -107,8 +108,17 @@ public class Board {
         for(int columns = 0; columns < board.length; columns++) {
             for(int rows = 0; rows < board[columns].length; rows++) {
                 if(board[columns][rows] != null) {
-                    this.root.add(board[columns][rows].getImageView(), columns, rows);
+                    cells[columns][rows].getCell().getChildren().add(board[columns][rows].getImageView());
                 }
+            }
+        }
+        setIndicatorsOnTop();
+    }
+
+    private void setIndicatorsOnTop() {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                cells[i][j].getIndicator().toFront();
             }
         }
     }
@@ -119,6 +129,7 @@ public class Board {
                 Cell cell = new Cell(i, j);
                 this.cells[i][j] = cell;
                 root.add(cell.getCell(), i, j);
+                cell.getCell().toFront();
             }
         }
     }
@@ -174,8 +185,6 @@ public class Board {
             this.pane.setId(isLight ? "lightCell" : "darkCell");
             this.indicator = initMovementIndicator();
             this.pane.getChildren().add(this.indicator);
-            this.pane.toFront();
-            this.indicator.toFront();
             pane.addEventHandler(MouseEvent.MOUSE_CLICKED, new MouseClickedHandler()); //Adds event handling to pane
             pane.addEventHandler(MouseEvent.MOUSE_DRAGGED, new MouseDraggedHandler());
             pane.addEventHandler(MouseEvent.MOUSE_RELEASED, new MouseDroppedHandler());
@@ -187,7 +196,6 @@ public class Board {
             circle.setRadius(15);
             circle.setCenterY(37.5);
             circle.setCenterX(37.5);
-            circle.toFront();
             circle.setId("movementIndicator");
             circle.setVisible(false);
             circle.setDisable(true);
@@ -201,6 +209,10 @@ public class Board {
 
         public void setMovementIndicatorVisibility(boolean isVisible) {
             this.indicator.setVisible(isVisible);
+        }
+
+        public Circle getIndicator() {
+            return this.indicator;
         }
 
 }
@@ -236,9 +248,6 @@ public class Board {
             floatingPiece.setX(mouseEvent.getSceneX());
             floatingPiece.setY(mouseEvent.getSceneY());
 
-
-
-
             //Pick up ImageView
         }
     }
@@ -266,7 +275,8 @@ public class Board {
                 }
                 game.move(selectedPiece, gridIndex);
                 root.getChildren().remove(selectedPiece.getImageView());
-                root.add(selectedPiece.getImageView(), gridIndex[0], gridIndex[1]);
+                setIndicatorsOnTop();
+                root.add(board[gridIndex[0]][gridIndex[1]].getImageView(), gridIndex[0], gridIndex[1]);
                 // TODO: 26/04/2023 Remove movement indicators and check turn condition
                 selectedPiece.setColumn(gridIndex[0]);
                 selectedPiece.setRow(gridIndex[1]);
@@ -278,6 +288,7 @@ public class Board {
 
     private void showMoves(MouseEvent mouseEvent) {
         clearAllIndicators();
+        setIndicatorsOnTop();
         byte[] index = getGridIndexFromMousePos(mouseEvent.getSceneX(), mouseEvent.getSceneY());
         Piece[][] board = game.getBasicBoard();
         Piece piece = board[index[0]][index[1]];
