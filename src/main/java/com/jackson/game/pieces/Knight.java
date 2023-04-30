@@ -42,6 +42,8 @@ public class Knight extends Piece {
     public List<byte[]> getValidMoves(Piece[][] board) {
         List<byte[]> moves = getAllMoves();
         areMovesOnBoard(moves);
+        removeCellsOccupiedByFriendly(board, moves);
         return moves;
     }
+
 }

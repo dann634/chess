@@ -1,5 +1,6 @@
 package com.jackson.game.pieces;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Bishop extends Piece {
@@ -14,6 +15,17 @@ public class Bishop extends Piece {
 
     @Override
     public List<byte[]> getValidMoves(Piece[][] board) {
-        return null;
+
+        //Setup offsets
+        List<byte[]> offsetList = new ArrayList<>();
+        offsetList.add(new byte[]{1, 1});
+        offsetList.add(new byte[]{1, -1});
+        offsetList.add(new byte[]{-1, 1});
+        offsetList.add(new byte[]{-1, -1});
+
+        List<byte[]> moves = generateLinearMoves(offsetList, board);
+
+
+        return moves;
     }
 }

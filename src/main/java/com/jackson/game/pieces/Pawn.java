@@ -36,8 +36,12 @@ public class Pawn extends Piece {
         List<byte[]> moves = getAllMoves();
         Set<byte[]> invalidMoves = new HashSet<>();
 
-            if(board[this.column][this.row + moveForward] != null) {
+            if((this.row + moveForward) < 0 || (this.row + moveForward) > 8 ||  board[this.column][this.row + moveForward] != null) {
                 invalidMoves.add(moves.get(0));
+                invalidMoves.add(moves.get(1));
+            }
+
+            if(board[this.column][this.row + (moveForward * 2)] != null) {
                 invalidMoves.add(moves.get(1));
             }
 
@@ -60,9 +64,16 @@ public class Pawn extends Piece {
             }
 
         moves.removeAll(invalidMoves);
-        moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7); //On board
-
+        areMovesOnBoard(moves);
 
         return moves;
+    }
+
+    public List<byte[]> getDiagonals() {
+        List<byte[]> diagonals = new ArrayList<>();
+
+        diagonals.add(new byte[]{(byte) (this.getColumn()+1), (byte) (this.getRow() + moveForward)});
+        diagonals.add(new byte[]{(byte) (this.getColumn()-1), (byte) (this.getRow() + moveForward)});
+        return diagonals;
     }
 }

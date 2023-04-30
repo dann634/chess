@@ -3,6 +3,7 @@ package com.jackson.game.pieces;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Piece {
@@ -24,8 +25,55 @@ public abstract class Piece {
 
     public abstract List<byte[]> getValidMoves(Piece[][] board);
 
+    protected List<byte[]> generateLinearMoves(List<byte[]> offsets, Piece[][] board) {
+        List<byte[]> moves = new ArrayList<>();
+
+        byte rowOffset = 0;
+        byte columnOffset = 0;
+        Piece targetPiece = null;
+
+        for(byte[] offset : offsets) {
+            columnOffset = offset[0];
+            rowOffset = offset[1];
+            byte newColumn;
+            byte newRow;
+            boolean isLineValid = true;
+            byte counter = 1;
+            do {
+
+                newColumn = (byte) (this.column + (columnOffset * counter));
+                newRow = (byte) (this.row + (rowOffset * counter));
+
+                if(newColumn < 0 || newColumn > 7 || newRow < 0 || newRow > 7) {
+                    isLineValid = false;
+                } else {
+                    targetPiece = board[newColumn][newRow];
+                    if (targetPiece != null && !isPieceSameColour(this, targetPiece)) {
+                        moves.add(new byte[]{newColumn, newRow});
+                    } else if (targetPiece == null) {
+                        moves.add(new byte[]{newColumn, newRow});
+                    }
+                }
+
+                counter++;
+
+            } while (isLineValid && board[newColumn][newRow] == null);
+        }
+        return moves;
+    }
+
     protected void areMovesOnBoard(List<byte[]> moves) {
         moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
+    }
+
+    protected void removeCellsOccupiedByFriendly(Piece[][] board, List<byte[]> moves) {
+        List<byte[]> invalidMoves = new ArrayList<>();
+        for(byte[] move : moves) {
+            if(board[move[0]][move[1]] != null && isPieceSameColour(this, board[move[0]][move[1]])) {
+                invalidMoves.add(move);
+            }
+        }
+        moves.removeAll(invalidMoves);
     }
 
 
@@ -34,10 +82,8 @@ public abstract class Piece {
     }
 
     public void setRow(byte row) {
-        if(row > 0 && row < 7) {
+        if(row >= 0 && row <= 7) {
             this.row = row;
-        } else {
-            System.err.println("Error: Row out of bounds");
         }
     }
 
@@ -46,10 +92,8 @@ public abstract class Piece {
     }
 
     public void setColumn(byte column) {
-        if(column > 0 && column < 7) {
+        if(column >= 0 && column <= 7) {
             this.column = column;
-        } else {
-            System.err.println("Error: Column out of bounds");
         }
     }
 

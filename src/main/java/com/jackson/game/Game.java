@@ -1,17 +1,15 @@
 package com.jackson.game;
 
+import com.jackson.game.pieces.Pawn;
 import com.jackson.game.pieces.Piece;
 import com.jackson.ui.Board;
+import com.jackson.ui.SoundEffectsController;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Game {
 
@@ -67,13 +65,16 @@ public class Game {
 
     }
 
-    public static Piece getPieceInCell(byte row, byte column) {
-        for(Piece piece : getAllPieces()) {
-            if(piece.getRow() == row && piece.getColumn() == column) {
-                return piece;
-            }
+    public static Set<byte[]> getAllNonKingEnemyMoves(boolean isWhite, Piece[][] board) {
+        //Simple version for POC
+        Set<byte[]> moves = new HashSet<>();
+        Player player = isWhite ? black : white;
+        List<Piece> pieces = player.getPieces();
+        pieces.removeIf(n -> n.getClass().getSimpleName().equals("King"));
+        for(Piece piece : pieces) {
+            moves.addAll(piece.getValidMoves(board));
         }
-        return null;
+        return moves;
     }
 
     public static List<Piece> getAllPieces() {
@@ -84,27 +85,25 @@ public class Game {
         return allPieces;
     }
 
+    public static Set<byte[]> getEnemyPawnDiagonals(boolean isWhite) {
+        Player player = isWhite ? black : white;
+        Set<byte[]> diagonals = new LinkedHashSet<>();
+        for(Piece pawn : player.getAllPawns()) {
+            diagonals.addAll(((Pawn)pawn).getDiagonals());
+        }
+        diagonals.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
+        List<byte[]> repeatedMoves = new ArrayList<>();
+        for(byte[] move : diagonals) {
+
+        }
+
+        return diagonals;
+    }
+
     public static void rotateAllPieces(short rotation) {
         for(Piece piece : getAllPieces()) {
             piece.getImageView().setRotate(rotation);
         }
-    }
-
-    public static void move(Piece piece, byte row, byte column) {
-        Player enemyPlayer = piece.isWhite() ? black : white;
-        Player friendlyPlayer = piece.isWhite() ? white : black;
-
-        for(Piece enemyPiece : enemyPlayer.getPieces()) {
-            if(enemyPiece.getRow() == row && enemyPiece.getColumn() == column) {
-                enemyPlayer.getPieces().remove(enemyPiece); //Remove enemy piece
-                break;
-            }
-        }
-
-        piece.setColumn(column);
-        piece.setRow(row);
-
-        friendlyPlayer.setHasMoved(true);
     }
 
     private SimpleBooleanProperty initTurnProperty() {
@@ -127,11 +126,21 @@ public class Game {
         return basicBoard;
     }
 
-    public void move(Piece selectedPiece, byte[] move) {
-        this.basicBoard[selectedPiece.getColumn()][selectedPiece.getRow()] = null;
-        this.basicBoard[move[0]][move[1]] = null;
-        this.basicBoard[move[0]][move[1]] = selectedPiece;
-        this.board.clearAllIndicators();
+    public void move(Piece selectedPiece, byte[] move , SoundEffectsController soundEffectsController) {
+        this.basicBoard[selectedPiece.getColumn()][selectedPiece.getRow()] = null; //Sets previous location to null
+
+        if(this.basicBoard[move[0]][move[1]] != null) {
+            soundEffectsController.playCaptureEffect();
+        } else {
+            soundEffectsController.playMoveEffect();
+        }
+
+        this.basicBoard[move[0]][move[1]] = null; //Deletes any piece already on target square
+        this.basicBoard[move[0]][move[1]] = selectedPiece; //Sets piece to new location
+        this.board.clearAllIndicators(); //clears all indicators
+
+        selectedPiece.setColumn(move[0]);
+        selectedPiece.setRow(move[1]);
 
         //Update Board
     }

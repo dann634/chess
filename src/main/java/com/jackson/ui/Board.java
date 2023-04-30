@@ -5,7 +5,6 @@ import com.jackson.game.pieces.Piece;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -32,6 +31,8 @@ public class Board {
     private List<byte[]> currentMoves;
     private Piece selectedPiece;
 
+    private SoundEffectsController soundEffectsController;
+
 
     public Board(Stage stage, Piece[][] board, Game game) {
         this.currentMoves = new ArrayList<>();
@@ -44,7 +45,7 @@ public class Board {
     }
 
     private Scene getScene() {
-
+        this.soundEffectsController = new SoundEffectsController();
         this.floatingPiece = initFloatingPiece();
         this.floatingPiece.setVisible(true);
         this.parentRoot = new AnchorPane();
@@ -108,7 +109,7 @@ public class Board {
         for(int columns = 0; columns < board.length; columns++) {
             for(int rows = 0; rows < board[columns].length; rows++) {
                 if(board[columns][rows] != null) {
-                    cells[columns][rows].getCell().getChildren().add(board[columns][rows].getImageView());
+                    cells[columns][rows].addImageView(board[columns][rows].getImageView());
                 }
             }
         }
@@ -202,7 +203,15 @@ public class Board {
 
             return circle;
         }
-        
+
+        public void addImageView(ImageView imageView) {
+            this.pane.getChildren().add(imageView);
+        }
+
+        public void removeImageView() {
+            this.pane.getChildren().removeIf(n -> n.getClass().getSimpleName().equals("ImageView"));
+        }
+
         public Pane getCell() {
         return this.pane;
     }
@@ -270,16 +279,11 @@ public class Board {
             if(validSquare) {
                 //Move Piece
                 if(board[gridIndex[0]][gridIndex[1]] != null) {
-                    root.getChildren().remove((board[gridIndex[0]][gridIndex[1]].getImageView()));
-
+                    cells[gridIndex[0]][gridIndex[1]].removeImageView(); //Remove ImageView of Piece about to be eaten
                 }
-                game.move(selectedPiece, gridIndex);
-                root.getChildren().remove(selectedPiece.getImageView());
+                game.move(selectedPiece, gridIndex, soundEffectsController);
+                cells[selectedPiece.getColumn()][selectedPiece.getRow()].addImageView(selectedPiece.getImageView()); //Remove imageview from prev location
                 setIndicatorsOnTop();
-                root.add(board[gridIndex[0]][gridIndex[1]].getImageView(), gridIndex[0], gridIndex[1]);
-                // TODO: 26/04/2023 Remove movement indicators and check turn condition
-                selectedPiece.setColumn(gridIndex[0]);
-                selectedPiece.setRow(gridIndex[1]);
                 isBoardFacingWhite.setValue(!selectedPiece.isWhite());
 
             }
@@ -294,8 +298,6 @@ public class Board {
         Piece piece = board[index[0]][index[1]];
 
         if(piece != null) {
-
-            // FIXME: 26/04/2023 Basic board and gridpane don't match
 
             if(piece.isWhite() && isBoardFacingWhite.getValue() || !piece.isWhite() && !isBoardFacingWhite.getValue()) {
                 this.selectedPiece = piece;

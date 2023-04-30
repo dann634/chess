@@ -45,6 +45,12 @@ public class Player {
         }
     }
 
+    public List<Piece> getAllPawns() {
+        List<Piece> pieces = this.getPieces();
+        pieces.removeIf(n -> !n.getClass().getSimpleName().equals("Pawn"));
+        return pieces;
+    }
+
 
 
 
