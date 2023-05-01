@@ -57,13 +57,13 @@ public class SoundEffectsController {
     public void playMoveEffect() {
         this.filePath = MOVE_DIR;
         resetAudioStream();
-        play();
+//        play();
     }
 
     public void playCaptureEffect() {
         this.filePath = CAPTURE_DIR;
         resetAudioStream();
-        play();
+//        play();
     }
 
     public void playCastleEffect() {
