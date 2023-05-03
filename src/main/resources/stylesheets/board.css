@@ -12,6 +12,10 @@
     -fx-background-color: #769656;
 }
 
+#checkedCell {
+    -fx-background-color: #e34a40;
+}
+
 #movementIndicator {
     -fx-opacity: 0.75;
     -fx-fill: darkgrey;

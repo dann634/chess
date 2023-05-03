@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public class Pawn extends Piece {
 
@@ -41,7 +40,7 @@ public class Pawn extends Piece {
                 invalidMoves.add(moves.get(1));
             }
 
-            if(board[this.column][this.row + (moveForward * 2)] != null) {
+            if((this.row + (moveForward * 2)) < 0 || (this.row + (moveForward * 2)) > 7 || board[this.column][this.row + (moveForward * 2)] != null) {
                 invalidMoves.add(moves.get(1));
             }
 
@@ -65,6 +64,7 @@ public class Pawn extends Piece {
 
         moves.removeAll(invalidMoves);
         areMovesOnBoard(moves);
+        removeMovesFromPin(board, moves);
 
         return moves;
     }
@@ -76,4 +76,10 @@ public class Pawn extends Piece {
         diagonals.add(new byte[]{(byte) (this.getColumn()-1), (byte) (this.getRow() + moveForward)});
         return diagonals;
     }
+
+    @Override
+    public List<byte[]> getSquaresProtected(Piece[][] board) {
+        return getDiagonals();
+    }
+
 }

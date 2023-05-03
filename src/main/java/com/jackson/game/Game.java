@@ -1,5 +1,6 @@
 package com.jackson.game;
 
+import com.jackson.game.pieces.King;
 import com.jackson.game.pieces.Pawn;
 import com.jackson.game.pieces.Piece;
 import com.jackson.ui.Board;
@@ -22,6 +23,8 @@ public class Game {
 
     private Board board;
 
+    private Piece checkingPiece;
+
 
     public void start(Stage stage) {
         this.basicBoard = new Piece[8][8];
@@ -42,6 +45,7 @@ public class Game {
 
             //Main Game Loop
             while(true) {
+                System.out.println(checkingPiece != null ? "check" : "not in check");
                 if(white.hasMoved()) {
                     white.setHasMoved(false);
                     isWhiteTurn.set(false);
@@ -65,15 +69,14 @@ public class Game {
 
     }
 
-    public static Set<byte[]> getAllNonKingEnemyMoves(boolean isWhite, Piece[][] board) {
-        //Simple version for POC
+    public static Set<byte[]> getAllEnemyMoves(boolean isWhite, Piece[][] board) {
         Set<byte[]> moves = new HashSet<>();
         Player player = isWhite ? black : white;
         List<Piece> pieces = player.getPieces();
-        pieces.removeIf(n -> n.getClass().getSimpleName().equals("King"));
         for(Piece piece : pieces) {
-            moves.addAll(piece.getValidMoves(board));
+            moves.addAll(piece.getSquaresProtected(board));
         }
+        moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
         return moves;
     }
 
@@ -87,15 +90,11 @@ public class Game {
 
     public static Set<byte[]> getEnemyPawnDiagonals(boolean isWhite) {
         Player player = isWhite ? black : white;
-        Set<byte[]> diagonals = new LinkedHashSet<>();
-        for(Piece pawn : player.getAllPawns()) {
-            diagonals.addAll(((Pawn)pawn).getDiagonals());
+        Set<byte[]> diagonals = new HashSet<>();
+        for(Pawn pawn : player.getAllPawns()) {
+            diagonals.addAll(pawn.getDiagonals());
         }
         diagonals.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
-        List<byte[]> repeatedMoves = new ArrayList<>();
-        for(byte[] move : diagonals) {
-
-        }
 
         return diagonals;
     }
@@ -142,7 +141,32 @@ public class Game {
         selectedPiece.setColumn(move[0]);
         selectedPiece.setRow(move[1]);
 
-        //Update Board
+        board.removeCheckIndicator();
+
+        //Look for check
+        this.checkingPiece = null;
+        King enemyKing = getKing(!selectedPiece.isWhite());
+        List<byte[]> newMoves = selectedPiece.getValidMoves(this.basicBoard);
+        for(byte[] newMove : newMoves) {
+            if(newMove[0] == enemyKing.getColumn() && newMove[1] == enemyKing.getRow()) {
+                this.checkingPiece = selectedPiece;
+                board.highlightCheck(enemyKing);
+                break;
+            }
+        }
     }
 
+    public static King getKing(boolean isWhite) {
+        Player player = isWhite ? white : black;
+        for(Piece piece : player.getPieces()) {
+            if(piece.getClass().getSimpleName().equals("King")) {
+                return (King) piece;
+            }
+        }
+        return null;
+    }
+
+    public Piece getCheckingPiece() {
+        return checkingPiece;
+    }
 }

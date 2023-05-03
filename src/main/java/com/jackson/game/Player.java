@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Player {
 
-    private boolean isWhite;
+    private final boolean isWhite;
     private boolean hasMoved;
     private List<Piece> pieces;
 
@@ -29,7 +29,6 @@ public class Player {
         for (int i = 0; i < 8; i++) {
             this.pieces.add(new Pawn(pawnRow, (byte) i, this.isWhite));
         }
-        this.pieces.add(new Pawn((byte)5, (byte)5, this.isWhite));
         //Everything else
         this.pieces.add(new Rook(kingRow, (byte) 0, this.isWhite));
         this.pieces.add(new Rook(kingRow, (byte) 7, this.isWhite));
@@ -45,10 +44,14 @@ public class Player {
         }
     }
 
-    public List<Piece> getAllPawns() {
-        List<Piece> pieces = this.getPieces();
-        pieces.removeIf(n -> !n.getClass().getSimpleName().equals("Pawn"));
-        return pieces;
+    public List<Pawn> getAllPawns() {
+        List<Pawn> pawns = new ArrayList<>();
+        for(Piece piece : this.getPieces()) {
+            if(piece.getClass().getSimpleName().equals("Pawn")) {
+                pawns.add((Pawn)piece);
+            }
+        }
+        return pawns;
     }
 
 

@@ -1,6 +1,7 @@
 package com.jackson.ui;
 
 import com.jackson.game.Game;
+import com.jackson.game.pieces.King;
 import com.jackson.game.pieces.Piece;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
@@ -30,8 +31,9 @@ public class Board {
     private ImageView floatingPiece;
     private List<byte[]> currentMoves;
     private Piece selectedPiece;
-
     private SoundEffectsController soundEffectsController;
+
+    private byte[] checkedCellIndex;
 
 
     public Board(Stage stage, Piece[][] board, Game game) {
@@ -40,6 +42,7 @@ public class Board {
         this.board = board;
         this.game = game;
         this.cells = new Cell[8][8];
+        this.checkedCellIndex = new byte[]{0, 0};
         stage.setScene(getScene());
         stage.show();
     }
@@ -176,13 +179,15 @@ public class Board {
         private Pane pane;
         private Circle indicator;
 
+        private boolean isLight;
+
         public Cell(byte row, byte column) {
             this.row = row;
             this.column = column;
 
             this.pane = new Pane();
             this.pane.getStyleClass().add("cell");
-            boolean isLight = (row + column) % 2 == 0;
+            this.isLight = (row + column) % 2 == 0;
             this.pane.setId(isLight ? "lightCell" : "darkCell");
             this.indicator = initMovementIndicator();
             this.pane.getChildren().add(this.indicator);
@@ -202,6 +207,10 @@ public class Board {
             circle.setDisable(true);
 
             return circle;
+        }
+
+        public void setCheckIndicator(boolean isCheck) {
+            this.pane.setId(isCheck ? "checkedCell" : this.isLight ? "lightCell" : "darkCell");
         }
 
         public void addImageView(ImageView imageView) {
@@ -301,7 +310,11 @@ public class Board {
 
             if(piece.isWhite() && isBoardFacingWhite.getValue() || !piece.isWhite() && !isBoardFacingWhite.getValue()) {
                 this.selectedPiece = piece;
-                this.currentMoves.addAll(piece.getValidMoves(board));
+                if(game.getCheckingPiece() == null) {
+                    this.currentMoves.addAll(piece.getValidMoves(board));
+                } else {
+                    this.currentMoves.addAll(piece.getCheckMoves(board, game.getCheckingPiece()));
+                }
                 setMovementIndicatorSquares(this.currentMoves);
             }
 
@@ -313,6 +326,15 @@ public class Board {
             cells[move[0]][move[1]].setMovementIndicatorVisibility(false);
         }
         currentMoves.clear();
+    }
+
+    public void highlightCheck(King king) {
+        this.checkedCellIndex = new byte[]{king.getColumn(), king.getRow()};
+        this.cells[king.getColumn()][king.getRow()].setCheckIndicator(true);
+    }
+
+    public void removeCheckIndicator() {
+        this.cells[this.checkedCellIndex[0]][this.checkedCellIndex[1]].setCheckIndicator(false);
     }
 
 }

@@ -43,6 +43,14 @@ public class Knight extends Piece {
         List<byte[]> moves = getAllMoves();
         areMovesOnBoard(moves);
         removeCellsOccupiedByFriendly(board, moves);
+        removeMovesFromPin(board, moves);
+        return moves;
+    }
+
+    @Override
+    public List<byte[]> getSquaresProtected(Piece[][] board) {
+        List<byte[]> moves = getAllMoves();
+        areMovesOnBoard(moves);
         return moves;
     }
 

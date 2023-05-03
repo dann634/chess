@@ -5,8 +5,16 @@ import java.util.List;
 
 public class Rook extends Piece {
 
+    private List<byte[]> offsetList;
+
     public Rook(byte row, byte column, boolean isWhite) {
         super(row, column, isWhite);
+
+        this.offsetList = new ArrayList<>();
+        this.offsetList.add(new byte[]{1, 0});
+        this.offsetList.add(new byte[]{-1, 0});
+        this.offsetList.add(new byte[]{0, 1});
+        this.offsetList.add(new byte[]{0, -1});
     }
 
     @Override
@@ -16,17 +24,13 @@ public class Rook extends Piece {
 
     @Override
     public List<byte[]> getValidMoves(Piece[][] board) {
-
-        //Setup offsets
-        List<byte[]> offsetList = new ArrayList<>();
-        offsetList.add(new byte[]{1, 0});
-        offsetList.add(new byte[]{-1, 0});
-        offsetList.add(new byte[]{0, 1});
-        offsetList.add(new byte[]{0, -1});
-
-        List<byte[]> moves = generateLinearMoves(offsetList, board); //already invalidation checked
-
-
+        List<byte[]> moves = generateLinearMoves(this.offsetList, board, false);
+        removeMovesFromPin(board, moves);
         return moves;
+    }
+
+    @Override
+    public List<byte[]> getSquaresProtected(Piece[][] board) {
+        return generateLinearMoves(this.offsetList, board, true);
     }
 }

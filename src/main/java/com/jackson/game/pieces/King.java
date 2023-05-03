@@ -3,6 +3,7 @@ package com.jackson.game.pieces;
 import com.jackson.game.Game;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -16,8 +17,6 @@ public class King extends Piece {
         List<byte[]> moves = new ArrayList<>();
 
         //Create square including king pos, then remove king pos (starting top left square)
-        byte topLeftRow = (byte) (this.getRow() - 1); //hmm this might not work
-        byte topLeftColumn = (byte) (this.getColumn() - 1);
 
         for (int i = this.getColumn() - 1; i <= this.getColumn() + 1; i++) {
             for (int j = this.getRow() - 1; j <= this.getRow() + 1; j++) {
@@ -48,14 +47,30 @@ public class King extends Piece {
 
     }
 
-    private void removeProtectedMoves(List<byte[]> moves, Piece[][] board) { //Super inefficient
-        Set<byte[]> allEnemyMoves = Game.getAllNonKingEnemyMoves(this.isWhite(), board);
+    private void removeProtectedMoves(List<byte[]> moves, Piece[][] board) {
+        Set<byte[]> allEnemyMoves = Game.getAllEnemyMoves(this.isWhite(), board);
 
-        //Pawn Diagonal Attack doesn't exist until there is a piece
-        Set<byte[]> pawnDiagonals = Game.getEnemyPawnDiagonals(this.isWhite());
-        allEnemyMoves.addAll(pawnDiagonals); // FIXME: 29/04/2023 DOENS;'t work 
-
-        moves.removeAll(allEnemyMoves);
+        Set<byte[]> invalidMoves = new HashSet<>();
+        for(byte[] enemyMove : allEnemyMoves) {
+            for(byte[] kingMove : moves) {
+                if(enemyMove[0] == kingMove[0] && enemyMove[1] == kingMove[1]) {
+                    invalidMoves.add(kingMove);
+                }
+            }
+        }
+        moves.removeAll(invalidMoves);
     }
+
+    @Override
+    public List<byte[]> getSquaresProtected(Piece[][] board) {
+        return getAllMoves();
+    }
+
+    @Override
+    public List<byte[]> getCheckMoves(Piece[][] board, Piece checkingPiece) {
+       return getValidMoves(board);
+    }
+
+    // TODO: 01/05/2023 Add Method for all pieces to get all moves + moves that protect pieces
 
 }

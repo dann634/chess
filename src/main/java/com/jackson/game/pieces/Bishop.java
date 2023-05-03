@@ -4,8 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bishop extends Piece {
+
+    private List<byte[]> offsetList;
     public Bishop(byte row, byte column, boolean isWhite) {
         super(row, column, isWhite);
+        this.offsetList = new ArrayList<>();
+        this.offsetList.add(new byte[]{1, 1});
+        this.offsetList.add(new byte[]{1, -1});
+        this.offsetList.add(new byte[]{-1, 1});
+        this.offsetList.add(new byte[]{-1, -1});
     }
 
     @Override
@@ -15,17 +22,14 @@ public class Bishop extends Piece {
 
     @Override
     public List<byte[]> getValidMoves(Piece[][] board) {
-
-        //Setup offsets
-        List<byte[]> offsetList = new ArrayList<>();
-        offsetList.add(new byte[]{1, 1});
-        offsetList.add(new byte[]{1, -1});
-        offsetList.add(new byte[]{-1, 1});
-        offsetList.add(new byte[]{-1, -1});
-
-        List<byte[]> moves = generateLinearMoves(offsetList, board);
-
-
+        List<byte[]> moves = generateLinearMoves(this.offsetList, board, false);
+        removeMovesFromPin(board, moves);
         return moves;
     }
+
+    @Override
+    public List<byte[]> getSquaresProtected(Piece[][] board) {
+        return generateLinearMoves(this.offsetList, board, true);
+    }
+
 }
