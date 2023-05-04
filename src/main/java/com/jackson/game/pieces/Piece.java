@@ -79,13 +79,13 @@ public abstract class Piece {
     }
 
     protected void removePinnedMoves(List<byte[]> moves, Piece[][] board) { // FIXME: 04/05/2023 fix this
-        King king = Game.getKing(!this.isWhite);
+        King king = Game.getKing(this.isWhite);
 
         Iterator<byte[]> iterator = moves.listIterator();
         while(iterator.hasNext()) {
             byte[] move = iterator.next();
             if(tempMoveAndCheck(move, board, king)) {
-                moves.remove(move);
+                iterator.remove();
             }
 
         }

@@ -49,7 +49,6 @@ public class Game {
 
             //Main Game Loop
             while(true) {
-                System.out.println(checkingPiece != null ? "check" : "not in check");
                 if(white.hasMoved()) {
                     white.setHasMoved(false);
                     isWhiteTurn.set(false);
