@@ -69,12 +69,13 @@ public class Game {
 
     }
 
-    public static Set<byte[]> getAllEnemyMoves(boolean isWhite, Piece[][] board) {
+    public static Set<byte[]> getAllEnemyMoves(boolean isWhite, Piece[][] board, boolean isProtected) {
         Set<byte[]> moves = new HashSet<>();
         Player player = isWhite ? black : white;
         List<Piece> pieces = player.getPieces();
         for(Piece piece : pieces) {
-            moves.addAll(piece.getSquaresProtected(board));
+            moves.addAll(isProtected ? piece.getSquaresProtected(board) : piece.getValidMoves(board));
+//            moves.addAll(piece.getSquaresProtected(board));
         }
         moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
         return moves;

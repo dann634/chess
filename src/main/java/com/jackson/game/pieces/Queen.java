@@ -31,7 +31,6 @@ public class Queen extends Piece {
     @Override
     public List<byte[]> getValidMoves(Piece[][] board) {
         List<byte[]> moves = generateLinearMoves(this.offsetList, board, false);
-        removeMovesFromPin(board, moves);
         return moves;
     }
 

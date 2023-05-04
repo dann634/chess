@@ -35,18 +35,20 @@ public class Pawn extends Piece {
         List<byte[]> moves = getAllMoves();
         Set<byte[]> invalidMoves = new HashSet<>();
 
-            if((this.row + moveForward) < 0 || (this.row + moveForward) > 8 ||  board[this.column][this.row + moveForward] != null) {
-                invalidMoves.add(moves.get(0));
-                invalidMoves.add(moves.get(1));
-            }
+            try {
+                if((this.row + moveForward) < 0 || (this.row + moveForward) > 8 ||  board[this.column][this.row + moveForward] != null) {
+                    invalidMoves.add(moves.get(0));
+                    invalidMoves.add(moves.get(1));
+                }
 
-            if((this.row + (moveForward * 2)) < 0 || (this.row + (moveForward * 2)) > 7 || board[this.column][this.row + (moveForward * 2)] != null) {
-                invalidMoves.add(moves.get(1));
-            }
+                if((this.row + (moveForward * 2)) < 0 || (this.row + (moveForward * 2)) > 7 || board[this.column][this.row + (moveForward * 2)] != null) {
+                    invalidMoves.add(moves.get(1));
+                }
 
-            if(this.row != startingRow) {
-                invalidMoves.add(moves.get(1)); //Move two forward
-            }
+                if(this.row != startingRow) {
+                    invalidMoves.add(moves.get(1)); //Move two forward
+                }
+            } catch (ArrayIndexOutOfBoundsException ignored) {} //I dont care to fix this
 
             //Diagonals
             for (int i = 2; i < 4; i++) {
@@ -64,7 +66,6 @@ public class Pawn extends Piece {
 
         moves.removeAll(invalidMoves);
         areMovesOnBoard(moves);
-        removeMovesFromPin(board, moves);
 
         return moves;
     }

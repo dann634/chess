@@ -48,7 +48,7 @@ public class King extends Piece {
     }
 
     private void removeProtectedMoves(List<byte[]> moves, Piece[][] board) {
-        Set<byte[]> allEnemyMoves = Game.getAllEnemyMoves(this.isWhite(), board);
+        Set<byte[]> allEnemyMoves = Game.getAllEnemyMoves(this.isWhite(), board, true);
 
         Set<byte[]> invalidMoves = new HashSet<>();
         for(byte[] enemyMove : allEnemyMoves) {
@@ -69,6 +69,17 @@ public class King extends Piece {
     @Override
     public List<byte[]> getCheckMoves(Piece[][] board, Piece checkingPiece) {
        return getValidMoves(board);
+    }
+
+    public boolean isInCheck(Piece[][] board) {
+        Set<byte[]> allEnemyMoves = Game.getAllEnemyMoves(this.isWhite(), board, false);
+        allEnemyMoves.addAll(Game.getEnemyPawnDiagonals(this.isWhite()));
+        for(byte[] move : allEnemyMoves) {
+            if(move[0] == this.getColumn() && move[1] == this.getRow()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // TODO: 01/05/2023 Add Method for all pieces to get all moves + moves that protect pieces

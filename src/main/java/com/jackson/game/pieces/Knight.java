@@ -43,7 +43,6 @@ public class Knight extends Piece {
         List<byte[]> moves = getAllMoves();
         areMovesOnBoard(moves);
         removeCellsOccupiedByFriendly(board, moves);
-        removeMovesFromPin(board, moves);
         return moves;
     }
 

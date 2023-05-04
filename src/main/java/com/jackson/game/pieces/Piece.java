@@ -76,40 +76,6 @@ public abstract class Piece {
 
     }
 
-    public void removeMovesFromPin(Piece[][] board, List<byte[]> moves) {
-
-        List<byte[]> invalidMoves = new ArrayList<>();
-
-        byte originalColumn = this.getColumn();
-        byte originalRow = this.getRow();
-        Piece targetPos;
-
-        for(byte[] move : moves) { //Very inefficient
-            this.setColumn(move[0]);
-            this.setRow(move[1]);
-            targetPos = board[move[0]][move[1]];
-            board[move[0]][move[1]] = this;
-
-            King king = Game.getKing(this.isWhite);
-
-            Set<byte[]> enemyMoves = Game.getAllEnemyMoves(this.isWhite, board);
-            for(byte[] enemyMove : enemyMoves) {
-                if(enemyMove[0] == king.getColumn() && enemyMove[1] == king.getRow()) {
-                    invalidMoves.add(move);
-                }
-            }
-
-
-            board[originalColumn][originalRow] = this;
-            board[move[0]][move[1]] = targetPos;
-
-        }
-
-        this.setRow(originalRow);
-        this.setColumn(originalColumn);
-
-        moves.removeAll(invalidMoves);
-    }
 
     protected List<byte[]> generateLinearMoves(List<byte[]> offsets, Piece[][] board, boolean includeProtected) {
         List<byte[]> moves = new ArrayList<>();
