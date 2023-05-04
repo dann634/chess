@@ -73,7 +73,7 @@ public class King extends Piece {
     }
 
     @Override
-    public List<byte[]> getCheckMoves(Piece[][] board, Piece checkingPiece) {
+    public List<byte[]> getCheckMoves(Piece[][] board) {
        return getValidMoves(board);
     }
 

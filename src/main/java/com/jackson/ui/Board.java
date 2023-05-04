@@ -313,7 +313,7 @@ public class Board {
                 if(!game.isInCheck()) {
                     this.currentMoves.addAll(piece.getLegalMoves(board));
                 } else {
-//                    this.currentMoves.addAll(piece.getCheckMoves(board, game.getCheckingPiece()));
+                    this.currentMoves.addAll(piece.getCheckMoves(board));
                 }
                 setMovementIndicatorSquares(this.currentMoves);
             }

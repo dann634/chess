@@ -31,7 +31,7 @@ public abstract class Piece {
 
     public abstract List<byte[]> getSquaresProtected(Piece[][] board);
 
-    public List<byte[]> getCheckMoves(Piece[][] board, Piece checkingPiece) {
+    public List<byte[]> getCheckMoves(Piece[][] board) {
         //Implementation is the same for all pieces
         List<byte[]> moves = getValidMoves(board);
 
@@ -40,7 +40,7 @@ public abstract class Piece {
         Piece targetPos;
         byte originalColumn = this.getColumn();
         byte originalRow = this.getRow();
-        King enemyKing = Game.getKing(isWhite());
+        King king = Game.getKing(isWhite());
         boolean checkBlocked;
 
         List<byte[]> validMoves = new ArrayList<>();
@@ -52,21 +52,11 @@ public abstract class Piece {
             this.setRow(move[1]);
             checkBlocked = true;
 
-            if(move[0] == checkingPiece.getColumn() && move[1] == checkingPiece.getRow()) {
-                validMoves.add(move);
-            }
-
             //Check for check
-            List<byte[]> checkMoves = checkingPiece.getValidMoves(board);
-            for (byte[] checkMove : checkMoves) {
-                if (checkMove[0] == enemyKing.getColumn() && checkMove[1] == enemyKing.getRow()) {
-                    checkBlocked = false;
-                }
-            }
-
-            if (checkBlocked) {
+            if(!king.isInCheck(board)) {
                 validMoves.add(move);
             }
+
             board[originalColumn][originalRow] = this;
             board[move[0]][move[1]] = targetPos;
         }
@@ -78,7 +68,7 @@ public abstract class Piece {
 
     }
 
-    protected void removePinnedMoves(List<byte[]> moves, Piece[][] board) { // FIXME: 04/05/2023 fix this
+    protected void removePinnedMoves(List<byte[]> moves, Piece[][] board) {
         King king = Game.getKing(this.isWhite);
 
         Iterator<byte[]> iterator = moves.listIterator();
