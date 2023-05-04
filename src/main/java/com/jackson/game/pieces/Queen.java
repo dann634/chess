@@ -35,6 +35,13 @@ public class Queen extends Piece {
     }
 
     @Override
+    public List<byte[]> getLegalMoves(Piece[][] board) {
+        List<byte[]> moves = generateLinearMoves(this.offsetList, board, false);
+        removePinnedMoves(moves, board);
+        return moves;
+    }
+
+    @Override
     public List<byte[]> getSquaresProtected(Piece[][] board) {
         return generateLinearMoves(this.offsetList, board, true);
     }

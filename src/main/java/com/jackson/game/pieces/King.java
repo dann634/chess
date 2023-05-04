@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class King extends Piece {
     public King(byte row, byte column, boolean isWhite) {
@@ -62,6 +63,11 @@ public class King extends Piece {
     }
 
     @Override
+    public List<byte[]> getLegalMoves(Piece[][] board) {
+        return getValidMoves(board);
+    }
+
+    @Override
     public List<byte[]> getSquaresProtected(Piece[][] board) {
         return getAllMoves();
     }
@@ -72,12 +78,85 @@ public class King extends Piece {
     }
 
     public boolean isInCheck(Piece[][] board) {
-        Set<byte[]> allEnemyMoves = Game.getAllEnemyMoves(this.isWhite(), board, false);
-        allEnemyMoves.addAll(Game.getEnemyPawnDiagonals(this.isWhite()));
-        for(byte[] move : allEnemyMoves) {
+        //Need to add check for pawn and knight
+        List<byte[]> enemyMoves = new ArrayList<>();
+
+
+        List<Pawn> pieces = Game.getPawns(!isWhite()); //Pawns
+        for(Piece piece : pieces) {
+            enemyMoves.addAll(piece.getValidMoves(board));
+        }
+        
+        List<Knight> knights = Game.getKnights(!isWhite());
+        for(Knight knight : knights) {
+            enemyMoves.addAll(knight.getValidMoves(board));
+        }
+        
+        for(byte[] move : enemyMoves) {
             if(move[0] == this.getColumn() && move[1] == this.getRow()) {
                 return true;
             }
+        }
+        
+        List<byte[]> offsets = new ArrayList<>();
+        offsets.add(new byte[]{1, 0});
+        offsets.add(new byte[]{-1, 0});
+        offsets.add(new byte[]{0, 1});
+        offsets.add(new byte[]{0, -1});
+        for(byte[] offset : offsets) {
+            if(checkOffsetForCheck(offset, board, false)) {
+                return true;
+            }
+        }
+        
+        offsets.clear();
+        offsets.add(new byte[]{1, 1});
+        offsets.add(new byte[]{1, -1});
+        offsets.add(new byte[]{-1, 1});
+        offsets.add(new byte[]{-1, -1});
+        for(byte[] offset : offsets) {
+            if(checkOffsetForCheck(offset, board, true)) {
+                return true;
+            }
+        }
+
+        return false;
+        
+    }
+
+    private boolean checkOffsetForCheck(byte[] offset, Piece[][] board, boolean isDiagonal) { //Throws beams to check for check
+        byte columnMultiplier = 1;
+        byte newColumn = (byte) (this.getColumn() + offset[0]);
+        byte newRow = (byte) (this.getRow() + offset[1]);
+        Piece targetPiece;
+
+        while(newColumn >= 0 && newColumn <= 7 && newRow >= 0 && newRow <= 7) {
+
+            targetPiece = board[newColumn][newRow];
+
+            if(targetPiece != null) {
+                String className = targetPiece.getClass().getSimpleName();
+                if(isPieceSameColour(this, targetPiece)) { //friendly piece
+                    return false;
+                } else { //friendly piece
+
+                    if(className.equals("Queen")) { //Queen can attack from straight and diagonal
+                        return true;
+                    }
+
+                    if(isDiagonal && className.equals("Bishop")) { //Diagonal
+                        return true;
+                    }
+
+                    if(!isDiagonal && className.equals("Rook")) { //Straight
+                        return true;
+                    }
+                }
+            }
+
+            columnMultiplier++;
+            newColumn = (byte) (this.getColumn() + (offset[0] * columnMultiplier));
+            newRow = (byte) (this.getRow() + (offset[1] * columnMultiplier));
         }
         return false;
     }

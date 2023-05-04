@@ -310,10 +310,10 @@ public class Board {
 
             if(piece.isWhite() && isBoardFacingWhite.getValue() || !piece.isWhite() && !isBoardFacingWhite.getValue()) {
                 this.selectedPiece = piece;
-                if(game.getCheckingPiece() == null) {
-                    this.currentMoves.addAll(piece.getValidMoves(board));
+                if(!game.isInCheck()) {
+                    this.currentMoves.addAll(piece.getLegalMoves(board));
                 } else {
-                    this.currentMoves.addAll(piece.getCheckMoves(board, game.getCheckingPiece()));
+//                    this.currentMoves.addAll(piece.getCheckMoves(board, game.getCheckingPiece()));
                 }
                 setMovementIndicatorSquares(this.currentMoves);
             }

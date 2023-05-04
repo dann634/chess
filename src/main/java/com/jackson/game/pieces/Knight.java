@@ -47,6 +47,11 @@ public class Knight extends Piece {
     }
 
     @Override
+    public List<byte[]> getLegalMoves(Piece[][] board) {
+        return getValidMoves(board);
+    }
+
+    @Override
     public List<byte[]> getSquaresProtected(Piece[][] board) {
         List<byte[]> moves = getAllMoves();
         areMovesOnBoard(moves);

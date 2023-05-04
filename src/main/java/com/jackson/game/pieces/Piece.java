@@ -5,8 +5,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public abstract class Piece {
 
@@ -26,6 +26,8 @@ public abstract class Piece {
     protected abstract List<byte[]> getAllMoves();
 
     public abstract List<byte[]> getValidMoves(Piece[][] board);
+
+    public abstract List<byte[]> getLegalMoves(Piece[][] board);
 
     public abstract List<byte[]> getSquaresProtected(Piece[][] board);
 
@@ -76,6 +78,40 @@ public abstract class Piece {
 
     }
 
+    protected void removePinnedMoves(List<byte[]> moves, Piece[][] board) { // FIXME: 04/05/2023 fix this
+        King king = Game.getKing(!this.isWhite);
+
+        Iterator<byte[]> iterator = moves.listIterator();
+        while(iterator.hasNext()) {
+            byte[] move = iterator.next();
+            if(tempMoveAndCheck(move, board, king)) {
+                moves.remove(move);
+            }
+
+        }
+    }
+
+    private boolean tempMoveAndCheck(byte[] move, Piece[][] board, King king) {
+        byte originalColumn = this.getColumn();
+        byte originalRow = this.getRow();
+
+        Piece targetPiece = board[move[0]][move[1]];
+
+        board[this.column][this.row] = null;
+        this.setColumn(move[0]);
+        this.setRow(move[1]);
+        board[this.column][this.row] = this;
+
+        boolean isInCheck = king.isInCheck(board);
+
+        this.setColumn(originalColumn);
+        this.setRow(originalRow);
+        board[this.getColumn()][this.getRow()] = this;
+        board[move[0]][move[1]] = targetPiece;
+
+        return isInCheck;
+
+    }
 
     protected List<byte[]> generateLinearMoves(List<byte[]> offsets, Piece[][] board, boolean includeProtected) {
         List<byte[]> moves = new ArrayList<>();

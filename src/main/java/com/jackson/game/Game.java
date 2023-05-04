@@ -1,6 +1,7 @@
 package com.jackson.game;
 
 import com.jackson.game.pieces.King;
+import com.jackson.game.pieces.Knight;
 import com.jackson.game.pieces.Pawn;
 import com.jackson.game.pieces.Piece;
 import com.jackson.ui.Board;
@@ -25,8 +26,11 @@ public class Game {
 
     private Piece checkingPiece;
 
+    private boolean inCheck;
+
 
     public void start(Stage stage) {
+        this.inCheck = false;
         this.basicBoard = new Piece[8][8];
         this.board = new Board(stage, this.basicBoard, this);
         isWhiteTurn = initTurnProperty();
@@ -145,16 +149,21 @@ public class Game {
         board.removeCheckIndicator();
 
         //Look for check
-        this.checkingPiece = null;
         King enemyKing = getKing(!selectedPiece.isWhite());
-        List<byte[]> newMoves = selectedPiece.getValidMoves(this.basicBoard);
-        for(byte[] newMove : newMoves) {
-            if(newMove[0] == enemyKing.getColumn() && newMove[1] == enemyKing.getRow()) {
-                this.checkingPiece = selectedPiece;
-                board.highlightCheck(enemyKing);
-                break;
-            }
+        if(enemyKing.isInCheck(basicBoard)) {
+            this.inCheck = true;
+            board.highlightCheck(enemyKing);
+        } else {
+            this.inCheck = false;
         }
+//        List<byte[]> newMoves = selectedPiece.getValidMoves(this.basicBoard);
+//        for(byte[] newMove : newMoves) {
+//            if(newMove[0] == enemyKing.getColumn() && newMove[1] == enemyKing.getRow()) {
+//                this.checkingPiece = selectedPiece;
+//                board.highlightCheck(enemyKing);
+//                break;
+//            }
+//        }
     }
 
     public static King getKing(boolean isWhite) {
@@ -167,7 +176,33 @@ public class Game {
         return null;
     }
 
-    public Piece getCheckingPiece() {
-        return checkingPiece;
+    public static List<Pawn> getPawns(boolean isWhite) {
+        Player player = isWhite ? white : black;
+        List<Pawn> pawns = new ArrayList<>();
+        for(Piece piece : player.getPieces()) {
+            if(piece.getClass().getSimpleName().equals("Pawn")) {
+                pawns.add((Pawn) piece);
+            }
+        }
+        return pawns;
+    }
+
+    public static List<Knight> getKnights(boolean isWhite) {
+        Player player = isWhite ? white : black;
+        List<Knight> knights = new ArrayList<>();
+        for(Piece piece : player.getPieces()) {
+            if(piece.getClass().getSimpleName().equals("Knight")) {
+                knights.add((Knight) piece);
+            }
+        }
+        return knights;
+    }
+
+    public boolean isInCheck() {
+        return inCheck;
+    }
+
+    public void setInCheck(boolean inCheck) {
+        this.inCheck = inCheck;
     }
 }

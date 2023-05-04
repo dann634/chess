@@ -70,6 +70,13 @@ public class Pawn extends Piece {
         return moves;
     }
 
+    @Override
+    public List<byte[]> getLegalMoves(Piece[][] board) {
+        List<byte[]> moves = getValidMoves(board);
+        removePinnedMoves(moves, board);
+        return moves;
+    }
+
     public List<byte[]> getDiagonals() {
         List<byte[]> diagonals = new ArrayList<>();
 
