@@ -23,6 +23,7 @@ public class Queen extends Piece {
         this.offsetList.add(new byte[]{0, -1});
     }
 
+
     @Override
     protected List<byte[]> getAllMoves() {
         return null;

@@ -15,6 +15,7 @@ public class Bishop extends Piece {
         this.offsetList.add(new byte[]{-1, -1});
     }
 
+
     @Override
     protected List<byte[]> getAllMoves() {
         return null;

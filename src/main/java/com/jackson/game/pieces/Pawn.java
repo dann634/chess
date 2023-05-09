@@ -1,5 +1,18 @@
 package com.jackson.game.pieces;
 
+import com.jackson.main.Main;
+import com.jackson.ui.Board;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -82,12 +95,59 @@ public class Pawn extends Piece {
 
         diagonals.add(new byte[]{(byte) (this.getColumn()+1), (byte) (this.getRow() + moveForward)});
         diagonals.add(new byte[]{(byte) (this.getColumn()-1), (byte) (this.getRow() + moveForward)});
+
+        areMovesOnBoard(diagonals);
+
         return diagonals;
     }
 
     @Override
     public List<byte[]> getSquaresProtected(Piece[][] board) {
         return getDiagonals();
+    }
+
+    public void promote(Piece[][] board, Board uiBoard) {
+        Stage promoteStage = new Stage();
+        promoteStage.initOwner(Main.getStage());
+        promoteStage.initModality(Modality.APPLICATION_MODAL);
+        promoteStage.setResizable(false);
+//        promoteStage.setX(mouseEvent.getSceneX() - 100);
+//        promoteStage.setY(mouseEvent.getSceneX());
+
+
+        VBox vBox = new VBox(8);
+        vBox.setPadding(new Insets(8, 8, 8, 8));
+        vBox.setAlignment(Pos.CENTER);
+
+        Button queenButton = createPromoteButton(new Queen((byte) -1, (byte) -1, this.isWhite()), promoteStage, board, uiBoard);
+        Button rookButton = createPromoteButton(new Rook((byte) -1, (byte) -1, this.isWhite()), promoteStage, board, uiBoard);
+        Button bishopButton = createPromoteButton(new Bishop((byte) -1, (byte) -1, this.isWhite()), promoteStage, board, uiBoard);
+        Button knightButton = createPromoteButton(new Knight((byte) -1, (byte) -1, this.isWhite()), promoteStage, board, uiBoard);
+
+
+        vBox.getChildren().addAll(queenButton, rookButton, bishopButton, knightButton);
+        promoteStage.setScene(new Scene(vBox));
+
+        promoteStage.show();
+    }
+
+    private Button createPromoteButton(Piece piece, Stage stage, Piece[][] board, Board uiBoard) {
+        ImageView imageView = piece.getImageView();
+        Button btn = new Button();
+
+        btn.setGraphic(imageView);
+
+        btn.setOnAction(e -> {
+
+            piece.setColumn(this.getColumn());
+            piece.setRow(this.getRow());
+            board[this.getColumn()][this.getRow()] = piece;
+            uiBoard.drawBoard(board);
+            stage.close();
+
+        });
+
+        return btn;
     }
 
 }

@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
-
-
     private SimpleBooleanProperty isBoardFacingWhite;
     private GridPane root;
     private AnchorPane parentRoot;
@@ -112,6 +110,7 @@ public class Board {
         for(int columns = 0; columns < board.length; columns++) {
             for(int rows = 0; rows < board[columns].length; rows++) {
                 if(board[columns][rows] != null) {
+                    cells[columns][rows].removeImageView();
                     cells[columns][rows].addImageView(board[columns][rows].getImageView());
                 }
             }
@@ -171,7 +170,6 @@ public class Board {
         return imageView;
     }
 
-
     class Cell {
 
         private byte row;
@@ -189,6 +187,8 @@ public class Board {
             this.pane.getStyleClass().add("cell");
             this.isLight = (row + column) % 2 == 0;
             this.pane.setId(isLight ? "lightCell" : "darkCell");
+            this.pane.setMaxHeight(75);
+            this.pane.setMaxWidth(75);
             this.indicator = initMovementIndicator();
             this.pane.getChildren().add(this.indicator);
             pane.addEventHandler(MouseEvent.MOUSE_CLICKED, new MouseClickedHandler()); //Adds event handling to pane
@@ -261,6 +261,7 @@ public class Board {
                 if(piece != null) {
                     floatingPiece.setImage(piece.getImageView().getImage());
                     floatingPiece.setVisible(true);
+//                    cells[gridIndex[0]][gridIndex[1]].removeImageView();
                 }
             }
             floatingPiece.setX(mouseEvent.getSceneX());
@@ -290,12 +291,13 @@ public class Board {
                 if(board[gridIndex[0]][gridIndex[1]] != null) {
                     cells[gridIndex[0]][gridIndex[1]].removeImageView(); //Remove ImageView of Piece about to be eaten
                 }
-                game.move(selectedPiece, gridIndex, soundEffectsController);
+                game.move(selectedPiece, gridIndex, soundEffectsController, mouseEvent);
                 cells[selectedPiece.getColumn()][selectedPiece.getRow()].addImageView(selectedPiece.getImageView()); //Remove imageview from prev location
                 setIndicatorsOnTop();
                 isBoardFacingWhite.setValue(!selectedPiece.isWhite());
 
             }
+//            cells[gridIndex[0]][gridIndex[1]].addImageView(floatingPiece);
         }
     }
 
@@ -336,5 +338,15 @@ public class Board {
     public void removeCheckIndicator() {
         this.cells[this.checkedCellIndex[0]][this.checkedCellIndex[1]].setCheckIndicator(false);
     }
+
+    public void addImageView(ImageView imageView, byte column, byte row) {
+        imageView.setX(this.cells[column][row].indicator.getCenterX() - (imageView.getFitWidth() / 2));
+        this.cells[column][row].addImageView(imageView);
+    }
+
+    public void removeImageView(byte column, byte row) {
+        this.cells[column][row].removeImageView();
+    }
+
 
 }

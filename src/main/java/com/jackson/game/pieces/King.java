@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.ToDoubleBiFunction;
 
 public class King extends Piece {
     public King(byte row, byte column, boolean isWhite) {
@@ -38,7 +39,7 @@ public class King extends Piece {
     }
 
     @Override
-    public List<byte[]> getValidMoves(Piece[][] board) {
+    public List<byte[]> getValidMoves(Piece[][] board) { // FIXME: 09/05/2023 this doesnt work
         List<byte[]> moves = getAllMoves();
         areMovesOnBoard(moves); //Range Check
         removeCellsOccupiedByFriendly(board, moves); //Friendly Check
@@ -48,9 +49,9 @@ public class King extends Piece {
 
     }
 
-    private void removeProtectedMoves(List<byte[]> moves, Piece[][] board) {
+    private void removeProtectedMoves(List<byte[]> moves, Piece[][] board) { // FIXME: 09/05/2023 this doenst work
         Set<byte[]> allEnemyMoves = Game.getAllEnemyMoves(this.isWhite(), board, true);
-
+        // TODO: 09/05/2023 King can move backwards in line with linear pieces
         Set<byte[]> invalidMoves = new HashSet<>();
         for(byte[] enemyMove : allEnemyMoves) {
             for(byte[] kingMove : moves) {
@@ -69,7 +70,9 @@ public class King extends Piece {
 
     @Override
     public List<byte[]> getSquaresProtected(Piece[][] board) {
-        return getAllMoves();
+        List<byte[]> moves = getAllMoves();
+        areMovesOnBoard(moves);
+        return moves;
     }
 
     @Override
@@ -98,7 +101,7 @@ public class King extends Piece {
             }
         }
         
-        List<byte[]> offsets = new ArrayList<>();
+        List<byte[]> offsets = new ArrayList<>(); // FIXME: 09/05/2023 diagonals causing the checking issue
         offsets.add(new byte[]{1, 0});
         offsets.add(new byte[]{-1, 0});
         offsets.add(new byte[]{0, 1});
@@ -124,7 +127,7 @@ public class King extends Piece {
         
     }
 
-    private boolean checkOffsetForCheck(byte[] offset, Piece[][] board, boolean isDiagonal) { //Throws beams to check for check
+    private boolean checkOffsetForCheck(byte[] offset, Piece[][] board, boolean isDiagonal) {
         byte columnMultiplier = 1;
         byte newColumn = (byte) (this.getColumn() + offset[0]);
         byte newRow = (byte) (this.getRow() + offset[1]);
@@ -138,7 +141,7 @@ public class King extends Piece {
                 String className = targetPiece.getClass().getSimpleName();
                 if(isPieceSameColour(this, targetPiece)) { //friendly piece
                     return false;
-                } else { //friendly piece
+                } else { //enemy piece
 
                     if(className.equals("Queen")) { //Queen can attack from straight and diagonal
                         return true;
@@ -151,6 +154,8 @@ public class King extends Piece {
                     if(!isDiagonal && className.equals("Rook")) { //Straight
                         return true;
                     }
+
+                    return false;
                 }
             }
 

@@ -9,6 +9,7 @@ import com.jackson.ui.SoundEffectsController;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.util.*;
@@ -72,12 +73,12 @@ public class Game {
 
     }
 
-    public static Set<byte[]> getAllEnemyMoves(boolean isWhite, Piece[][] board, boolean isProtected) {
+    public static Set<byte[]> getAllEnemyMoves(boolean isWhite, Piece[][] board, boolean isProtected) { // FIXME: 09/05/2023 protected is bugging
         Set<byte[]> moves = new HashSet<>();
         Player player = isWhite ? black : white;
         List<Piece> pieces = player.getPieces();
         for(Piece piece : pieces) {
-            moves.addAll(isProtected ? piece.getSquaresProtected(board) : piece.getValidMoves(board));
+            moves.addAll(isProtected ? piece.getSquaresProtected(board) : piece.getValidMoves(board)); // FIXME: 09/05/2023 check getSquaresProtected for each piece, especially kngiht
 //            moves.addAll(piece.getSquaresProtected(board));
         }
         moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
@@ -129,7 +130,7 @@ public class Game {
         return basicBoard;
     }
 
-    public void move(Piece selectedPiece, byte[] move , SoundEffectsController soundEffectsController) {
+    public void move(Piece selectedPiece, byte[] move , SoundEffectsController soundEffectsController, MouseEvent mouseEvent) {
         this.basicBoard[selectedPiece.getColumn()][selectedPiece.getRow()] = null; //Sets previous location to null
 
         if(this.basicBoard[move[0]][move[1]] != null) {
@@ -147,13 +148,18 @@ public class Game {
 
         board.removeCheckIndicator();
 
+        //Promotion check
+        if(selectedPiece.getClass().getSimpleName().equals("Pawn") && (selectedPiece.getRow() == 0 || selectedPiece.getRow() == 7)) {
+            ((Pawn) selectedPiece).promote(basicBoard, board);
+        }
+
+        this.inCheck = false;
+
         //Look for check
         King enemyKing = getKing(!selectedPiece.isWhite());
         if(enemyKing.isInCheck(basicBoard)) {
             this.inCheck = true;
             board.highlightCheck(enemyKing);
-        } else {
-            this.inCheck = false;
         }
 //        List<byte[]> newMoves = selectedPiece.getValidMoves(this.basicBoard);
 //        for(byte[] newMove : newMoves) {

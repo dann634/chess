@@ -9,6 +9,8 @@ public class Knight extends Piece {
         super(row, column, isWhite);
     }
 
+    // FIXME: 05/05/2023 Can't take when checking king
+
     @Override
     protected List<byte[]> getAllMoves() {
         List<byte[]> allMoves = new ArrayList<>();
@@ -53,9 +55,7 @@ public class Knight extends Piece {
 
     @Override
     public List<byte[]> getSquaresProtected(Piece[][] board) {
-        List<byte[]> moves = getAllMoves();
-        areMovesOnBoard(moves);
-        return moves;
+        return getValidMoves(board);
     }
 
 }

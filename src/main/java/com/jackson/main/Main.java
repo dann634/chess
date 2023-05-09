@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private Stage stage;
+    private static Stage stage;
 
     @Override
     public void start(Stage pStage) {
@@ -19,5 +19,9 @@ public class Main extends Application {
         Game game = new Game();
         game.start(stage);
 
+    }
+
+    public static Stage getStage() {
+        return stage;
     }
 }

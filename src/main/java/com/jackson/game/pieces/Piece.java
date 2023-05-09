@@ -106,9 +106,9 @@ public abstract class Piece {
     protected List<byte[]> generateLinearMoves(List<byte[]> offsets, Piece[][] board, boolean includeProtected) {
         List<byte[]> moves = new ArrayList<>();
 
-        byte rowOffset = 0;
-        byte columnOffset = 0;
-        Piece targetPiece = null;
+        byte rowOffset;
+        byte columnOffset;
+        Piece targetPiece;
 
         for(byte[] offset : offsets) {
             columnOffset = offset[0];
@@ -140,6 +140,8 @@ public abstract class Piece {
                 counter++;
 
             } while (isLineValid && board[newColumn][newRow] == null);
+
+            areMovesOnBoard(moves);
         }
         return moves;
     }
