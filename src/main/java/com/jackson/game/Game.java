@@ -138,13 +138,8 @@ public class Game {
             player.getPieces().remove(targetPiece);
         }
 
+        boolean isPieceTaken = (this.basicBoard[move[0]][move[1]] != null); //Flag for sound
 
-        //Sounds
-        if(this.basicBoard[move[0]][move[1]] != null) {
-            soundEffectsController.playSound("capture");
-        } else {
-            soundEffectsController.playSound("move");
-        }
 
         this.basicBoard[move[0]][move[1]] = null; //Deletes any piece already on target square
         this.basicBoard[move[0]][move[1]] = selectedPiece; //Sets piece to new location
@@ -161,6 +156,7 @@ public class Game {
         }
 
         this.inCheck = false;
+        boolean isCheckmate = false;
 
         //Look for check
         King enemyKing = getKing(!selectedPiece.isWhite());
@@ -168,12 +164,24 @@ public class Game {
             //Print all enemy check moves
             if(getAllCheckMoves(!selectedPiece.isWhite()).isEmpty()) {
                 System.out.println((selectedPiece.isWhite() ? "White" : "Black") + " wins!!");
-                soundEffectsController.playSound("win");
                 //Go to end game screen
+                isCheckmate = true;
             }
             this.inCheck = true;
             board.highlightCheck(enemyKing);
         }
+
+        //Sound
+        if(isCheckmate) {
+            soundEffectsController.playSound("win");
+        } else {
+            if(isPieceTaken) {
+                soundEffectsController.playSound("capture");
+            } else {
+                soundEffectsController.playSound("move");
+            }
+        }
+
 
 
     }

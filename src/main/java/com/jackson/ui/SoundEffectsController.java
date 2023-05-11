@@ -57,30 +57,6 @@ public class SoundEffectsController {
         }
     }
 
-//    public void playMoveEffect() {
-//        this.filePath = MOVE_DIR;
-//        resetAudioStream();
-//        play();
-//    }
-//
-//    public void playCaptureEffect() {
-//        this.filePath = CAPTURE_DIR;
-//        resetAudioStream();
-//        play();
-//    }
-//
-//    public void playCastleEffect() {
-//        this.filePath = CASTLE_DIR;
-//        resetAudioStream();
-//        play();
-//    }
-//
-//    public void playWinEffect() {
-//        this.filePath = WIN_DIR;
-//        resetAudioStream();
-//        play();
-//    }
-
     public void playSound(String soundEffectName) {
         Map<String, String> map = new HashMap<>();
         map.put("move", MOVE_DIR);
