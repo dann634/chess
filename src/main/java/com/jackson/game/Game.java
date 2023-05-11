@@ -1,18 +1,25 @@
 package com.jackson.game;
 
-import com.jackson.game.pieces.King;
-import com.jackson.game.pieces.Knight;
-import com.jackson.game.pieces.Pawn;
-import com.jackson.game.pieces.Piece;
+import com.jackson.game.pieces.*;
+import com.jackson.main.Main;
 import com.jackson.ui.Board;
 import com.jackson.ui.SoundEffectsController;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.input.MouseEvent;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Game {
 
@@ -24,16 +31,15 @@ public class Game {
     private Piece[][] basicBoard;
 
     private Board board;
-
-    private Piece checkingPiece;
-
     private boolean inCheck;
+    private Stage stage;
 
 
     public void start(Stage stage) {
         this.inCheck = false;
         this.basicBoard = new Piece[8][8];
-        this.board = new Board(stage, this.basicBoard, this);
+        this.stage = stage;
+        this.board = new Board(this.stage, this.basicBoard, this);
         isWhiteTurn = initTurnProperty();
 
         Thread gameThread = new Thread(() -> {
@@ -73,13 +79,12 @@ public class Game {
 
     }
 
-    public static Set<byte[]> getAllEnemyMoves(boolean isWhite, Piece[][] board, boolean isProtected) { // FIXME: 09/05/2023 protected is bugging
+    public static Set<byte[]> getAllEnemyMoves(boolean isWhite, Piece[][] board, boolean isProtected) {
         Set<byte[]> moves = new HashSet<>();
         Player player = isWhite ? black : white;
         List<Piece> pieces = player.getPieces();
         for(Piece piece : pieces) {
-            moves.addAll(isProtected ? piece.getSquaresProtected(board) : piece.getValidMoves(board)); // FIXME: 09/05/2023 check getSquaresProtected for each piece, especially kngiht
-//            moves.addAll(piece.getSquaresProtected(board));
+            moves.addAll(isProtected ? piece.getSquaresProtected(board) : piece.getValidMoves(board));
         }
         moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
         return moves;
@@ -93,16 +98,7 @@ public class Game {
         return allPieces;
     }
 
-    public static Set<byte[]> getEnemyPawnDiagonals(boolean isWhite) {
-        Player player = isWhite ? black : white;
-        Set<byte[]> diagonals = new HashSet<>();
-        for(Pawn pawn : player.getAllPawns()) {
-            diagonals.addAll(pawn.getDiagonals());
-        }
-        diagonals.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
 
-        return diagonals;
-    }
 
     public static void rotateAllPieces(short rotation) {
         for(Piece piece : getAllPieces()) {
@@ -130,7 +126,7 @@ public class Game {
         return basicBoard;
     }
 
-    public void move(Piece selectedPiece, byte[] move , SoundEffectsController soundEffectsController, MouseEvent mouseEvent) {
+    public void move(Piece selectedPiece, byte[] move , SoundEffectsController soundEffectsController) {
         this.basicBoard[selectedPiece.getColumn()][selectedPiece.getRow()] = null; //Sets previous location to null
 
         //Sounds
@@ -158,7 +154,7 @@ public class Game {
 
         //Promotion check
         if(selectedPiece.getClass().getSimpleName().equals("Pawn") && (selectedPiece.getRow() == 0 || selectedPiece.getRow() == 7)) {
-            ((Pawn) selectedPiece).promote(basicBoard, board);
+            promote(selectedPiece);
         }
 
         this.inCheck = false;
@@ -225,6 +221,52 @@ public class Game {
             moves.addAll(piece.getCheckMoves(basicBoard));
         }
         return moves;
+    }
+
+    public void promote(Piece oldPiece) {
+        Stage promoteStage = new Stage();
+        promoteStage.initOwner(this.stage);
+        promoteStage.initModality(Modality.APPLICATION_MODAL);
+        promoteStage.setResizable(false);
+
+        VBox vBox = new VBox(8);
+        vBox.setPadding(new Insets(8, 8, 8, 8));
+        vBox.setAlignment(Pos.CENTER);
+
+        Button queenButton = createPromoteButton(new Queen((byte) -1, (byte) -1, oldPiece.isWhite()), oldPiece, promoteStage);
+        Button rookButton = createPromoteButton(new Rook((byte) -1, (byte) -1, oldPiece.isWhite()), oldPiece, promoteStage);
+        Button bishopButton = createPromoteButton(new Bishop((byte) -1, (byte) -1, oldPiece.isWhite()), oldPiece, promoteStage);
+        Button knightButton = createPromoteButton(new Knight((byte) -1, (byte) -1, oldPiece.isWhite()), oldPiece, promoteStage);
+
+        vBox.getChildren().addAll(queenButton, rookButton, bishopButton, knightButton);
+        promoteStage.setScene(new Scene(vBox));
+
+        promoteStage.show();
+    }
+
+    private Button createPromoteButton(Piece piece, Piece oldPiece, Stage promotionStage) {
+        ImageView imageView = piece.getImageView();
+        Button btn = new Button();
+
+        btn.setGraphic(imageView);
+
+        btn.setOnAction(e -> {
+
+            piece.setColumn(oldPiece.getColumn());
+            piece.setRow(oldPiece.getRow());
+            this.basicBoard[oldPiece.getColumn()][oldPiece.getRow()] = piece;
+
+            Player player = piece.isWhite() ? white : black;
+            player.getPieces().add(piece);
+
+            this.board.removeImageView(oldPiece.getColumn(), oldPiece.getRow());
+            this.board.addImageView(piece.getImageView(), piece.getColumn(), piece.getRow());
+
+            promotionStage.close();
+
+        });
+
+        return btn;
     }
 
 

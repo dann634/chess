@@ -39,23 +39,9 @@ public class Player {
         this.pieces.add(new Queen(kingRow, (byte) 3, this.isWhite));
         this.pieces.add(new King(kingRow, (byte) 4, this.isWhite));
 
-        for(Piece piece : this.pieces) {
+        for (Piece piece : this.pieces) {
             board[piece.getColumn()][piece.getRow()] = piece;
         }
-    }
-
-    public List<Pawn> getAllPawns() {
-        List<Pawn> pawns = new ArrayList<>();
-        for(Piece piece : this.getPieces()) {
-            if(piece.getClass().getSimpleName().equals("Pawn")) {
-                pawns.add((Pawn)piece);
-            }
-        }
-        return pawns;
-    }
-
-    public boolean isWhite() {
-        return isWhite;
     }
 
 

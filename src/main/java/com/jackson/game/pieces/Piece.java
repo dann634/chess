@@ -31,7 +31,7 @@ public abstract class Piece {
 
     public abstract List<byte[]> getSquaresProtected(Piece[][] board);
 
-    public List<byte[]> getCheckMoves(Piece[][] board) { // FIXME: 09/05/2023 this doesnt work now
+    public List<byte[]> getCheckMoves(Piece[][] board) { // FIXME: 11/05/2023 Knights dont change check moves
         //Implementation is the same for all pieces
         List<byte[]> moves = getValidMoves(board);
 

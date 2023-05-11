@@ -286,13 +286,12 @@ public class Board {
                     break;
                 }
             }
-//            addImageView(selectedPiece.getImageView(), selectedPiece.getColumn(), selectedPiece.getRow());
             if(validSquare) {
                 //Move Piece
                 if(board[gridIndex[0]][gridIndex[1]] != null) {
                     removeImageView(gridIndex[0], gridIndex[1]); //Remove ImageView of Piece about to be eaten
                 }
-                game.move(selectedPiece, gridIndex, soundEffectsController, mouseEvent);
+                game.move(selectedPiece, gridIndex, soundEffectsController);
                 addImageView(selectedPiece.getImageView(), selectedPiece.getColumn(), selectedPiece.getRow());//Remove imageview from prev location
                 setIndicatorsOnTop();
                 isBoardFacingWhite.setValue(!selectedPiece.isWhite());
