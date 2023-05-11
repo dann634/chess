@@ -37,6 +37,8 @@ public class Game {
     private boolean isCheckmate;
     private boolean isPieceCaptured;
 
+    private boolean isCastleMove;
+
 
     public void start(Stage stage) {
         this.inCheck = false;
@@ -128,6 +130,7 @@ public class Game {
         - Sets previous location to null
         - Moves selectedPiece to new position on Piece[][]
         - Updates selectedPiece row and column to new position
+        - Has special case for castling
          */
         movePieces(selectedPiece, move);
 
@@ -142,6 +145,9 @@ public class Game {
         - Create dialog box with buttons for promotion
          */
         canPromote(selectedPiece);
+
+
+        castle(selectedPiece);
 
         /*
         - Gets enemy king
@@ -165,6 +171,34 @@ public class Game {
     //Move Method Broken Up
 
     private void movePieces(Piece piece, byte[] move) {
+
+
+        isMoveCastle(piece, move);
+
+        Rook targetRook = null;
+        boolean isKingSide = false;
+
+        if(pieceType.equals("King")) {
+
+
+            byte newKingColumn = (byte) (isKingSide ? 6 : 2); // TODO: 11/05/2023 Move this to castle function after isMoveCastle is called
+            byte newRookColumn = (byte) (isKingSide ? 5 : 3);
+
+            board.removeImageView(king.getColumn(), king.getRow());
+            king.setColumn(newKingColumn);
+            this.basicBoard[newKingColumn][king.getRow()] = king;
+            board.addImageView(king.getImageView(), king.getColumn(), king.getRow());
+
+            board.removeImageView(targetRook.getColumn(), targetRook.getRow());
+            targetRook.setColumn(newRookColumn);
+            this.basicBoard[newRookColumn][targetRook.getRow()] = targetRook;
+            board.addImageView(targetRook.getImageView(), targetRook.getColumn(), targetRook.getRow());
+
+            king.setCanCastle(false);
+        }
+
+
+        //Normal Movement
 
         this.isPieceCaptured = (this.basicBoard[move[0]][move[1]] != null); //Flag for sound
 
@@ -212,6 +246,18 @@ public class Game {
         if(piece.getClass().getSimpleName().equals("Pawn") && (piece.getRow() == 0 || piece.getRow() == 7)) {
             promote(piece);
         }
+    }
+
+    private void castle(Piece piece) {
+        String pieceName = piece.getClass().getSimpleName();
+        if(pieceName.equals("King")) {
+            ((King) piece).setCanCastle(false); //Removes castling rights for king
+        } else if(pieceName.equals("Rook")) {
+            ((Rook) piece).setCanCastle(false); //Removes Castling rights for Rook
+        }
+
+
+
     }
 
     private void playSound(SoundEffectsController soundEffectsController) {
@@ -354,9 +400,76 @@ public class Game {
 
 
     //Castling
-    private void castle() {
+    public static boolean[] canCastle(boolean isWhite, Piece[][] board) {
+
+        King king = Game.getKing(isWhite);
+
+        if (!king.canCastle()) { //Gate Keeping
+            return null;
+        }
+
+        if(king.isInCheck(board)) { //Can't castle in check
+            return null;
+        }
+
+        boolean canQueenSide = true;
+        boolean canKingSide = true;
+
+        List<Rook> rooks = Game.getRooks(isWhite);
+        if(rooks.isEmpty()) {
+            return null;
+        }
+
+        //If rooks lost castling rights
+        for(Rook rook : rooks) {
+            if(!rook.canCastle()) {
+                if(rook.isKingSide()) {
+                    canKingSide = false;
+                } else {
+                    canQueenSide = false;
+                }
+            }
+        }
+
+        //If pieces are in between
+        //Queen side
+        for (int i = 1; i < king.getColumn(); i++) {
+            if(board[i][king.getRow()] != null) {
+                canQueenSide = false;
+                break;
+            }
+        }
+
+        //King Side
+        for (int i = 6; i > king.getColumn(); i--) {
+            if(board[i][king.getRow()] != null) {
+                canKingSide = false;
+                break;
+            }
+        }
+
+        return new boolean[]{canQueenSide, canKingSide};
 
     }
+
+    private void isMoveCastle(Piece piece, byte[] move) {
+        this.isCastleMove = false;
+
+        String pieceType = piece.getClass().getSimpleName();
+        if(!pieceType.equals("King")) {
+            return;
+        }
+
+        List<Rook> rooks = getRooks(piece.isWhite());
+        for(Rook rook : rooks) {
+            if(move[0] == rook.getColumn() && move[1] == rook.getRow()) {
+                this.isCastleMove = true;
+                break;
+            }
+        }
+
+    }
+
 
 
 

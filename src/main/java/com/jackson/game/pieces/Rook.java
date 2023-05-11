@@ -1,11 +1,14 @@
 package com.jackson.game.pieces;
 
+import com.jackson.game.Game;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Rook extends Piece {
 
     private boolean canCastle;
+    private boolean isKingSide;
 
     private List<byte[]> offsetList;
 
@@ -13,6 +16,7 @@ public class Rook extends Piece {
         super(row, column, isWhite);
 
         this.canCastle = true;
+        this.isKingSide = (this.column == 7);
 
         this.offsetList = new ArrayList<>();
         this.offsetList.add(new byte[]{1, 0});
@@ -47,5 +51,13 @@ public class Rook extends Piece {
 
     public boolean canCastle() {
         return canCastle;
+    }
+
+    public void setCanCastle(boolean canCastle) {
+        this.canCastle = canCastle;
+    }
+
+    public boolean isKingSide() {
+        return isKingSide;
     }
 }

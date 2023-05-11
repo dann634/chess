@@ -54,7 +54,7 @@ public class King extends Piece {
 
     }
 
-    private void removeProtectedMoves(List<byte[]> moves, Piece[][] board) { // FIXME: 09/05/2023 this doenst work
+    private void removeProtectedMoves(List<byte[]> moves, Piece[][] board) {
         Set<byte[]> allEnemyMoves = Game.getAllEnemyMoves(this.isWhite(), board, true);
         // TODO: 09/05/2023 King can move backwards in line with linear pieces
         Set<byte[]> invalidMoves = new HashSet<>();
@@ -172,36 +172,26 @@ public class King extends Piece {
 
 
     private void addCastlingMoves(List<byte[]> moves, Piece[][] board) {
-        if (!this.canCastle) { //Gate Keeping
+        boolean[] canCastle = Game.canCastle(this.isWhite(), board);
+
+
+        if(canCastle == null) {
             return;
         }
 
-        List<Rook> rooks = Game.getRooks(this.isWhite());
-        if(rooks.isEmpty()) {
-            return;
-        } else {
-            for(Rook rook : rooks) {
-                if(!rook.canCastle()) { //If rooks can't castle
-                    return;
-                }
-            }
+        if(canCastle[0]) {
+            moves.add(new byte[]{0, this.getRow()});
         }
-
-        if(isInCheck(board)) { //Can't castle in check
-            return;
+        if(canCastle[1]) {
+            moves.add(new byte[]{7, this.getRow()});
         }
-
-        //Has Castling Rights
-        for(Rook rook : rooks) {
-            if(rook.getColumn() == 0) { //Queen Side
-                moves.add(new byte[]{2, this.getRow()});
-            }
-            if(rook.getColumn() == 7) { //King Side
-                moves.add(new byte[]{6, this.getRow()});
-            }
-        }
-
-
     }
 
+    public boolean canCastle() {
+        return canCastle;
+    }
+
+    public void setCanCastle(boolean canCastle) {
+        this.canCastle = canCastle;
+    }
 }
