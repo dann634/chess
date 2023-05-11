@@ -5,10 +5,14 @@ import java.util.List;
 
 public class Rook extends Piece {
 
+    private boolean canCastle;
+
     private List<byte[]> offsetList;
 
     public Rook(byte row, byte column, boolean isWhite) {
         super(row, column, isWhite);
+
+        this.canCastle = true;
 
         this.offsetList = new ArrayList<>();
         this.offsetList.add(new byte[]{1, 0});
@@ -39,5 +43,9 @@ public class Rook extends Piece {
     @Override
     public List<byte[]> getSquaresProtected(Piece[][] board) {
         return generateLinearMoves(this.offsetList, board, true);
+    }
+
+    public boolean canCastle() {
+        return canCastle;
     }
 }

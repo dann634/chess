@@ -34,6 +34,9 @@ public class Game {
     private boolean inCheck;
     private Stage stage;
 
+    private boolean isCheckmate;
+    private boolean isPieceCaptured;
+
 
     public void start(Stage stage) {
         this.inCheck = false;
@@ -92,13 +95,6 @@ public class Game {
         return moves;
     }
 
-    public static List<Piece> getAllPieces() {
-        List<Piece> allPieces = new ArrayList<>();
-        allPieces.addAll(white.getPieces());
-        allPieces.addAll(black.getPieces());
-
-        return allPieces;
-    }
 
 
 
@@ -117,9 +113,6 @@ public class Game {
         return property;
     }
 
-    public static boolean isWhiteTurn() {
-        return isWhiteTurn.get();
-    }
 
     // TODO: 28/03/2023 Add isWhiteTurnProperty
 
@@ -129,7 +122,54 @@ public class Game {
     }
 
     public void move(Piece selectedPiece, byte[] move , SoundEffectsController soundEffectsController) {
-        this.basicBoard[selectedPiece.getColumn()][selectedPiece.getRow()] = null; //Sets previous location to null
+
+        /*
+        - Saves if piece was captured (flag for sound)
+        - Sets previous location to null
+        - Moves selectedPiece to new position on Piece[][]
+        - Updates selectedPiece row and column to new position
+         */
+        movePieces(selectedPiece, move);
+
+        /*
+        - Removes Red Highlight on King
+        - Hides all movement indicators
+         */
+        updateUI();
+
+        /*
+        - If pawn and on row 0 or 8
+        - Create dialog box with buttons for promotion
+         */
+        canPromote(selectedPiece);
+
+        /*
+        - Gets enemy king
+        - If in check sets
+            - inCheck to true
+            -Highlights cell in red
+        - If checkmate go to end game screen
+         */
+        isCheck(selectedPiece);
+
+        /*
+        - Plays correct sound for move
+        - If checkmate, don't play move or capture as it bugs
+         */
+        playSound(soundEffectsController);
+
+
+
+    }
+
+    //Move Method Broken Up
+
+    private void movePieces(Piece piece, byte[] move) {
+
+        this.isPieceCaptured = (this.basicBoard[move[0]][move[1]] != null); //Flag for sound
+
+
+        this.basicBoard[piece.getColumn()][piece.getRow()] = null; //Sets previous location to null
 
         //Remove piece from pieces
         Piece targetPiece = this.basicBoard[move[0]][move[1]];
@@ -138,52 +178,63 @@ public class Game {
             player.getPieces().remove(targetPiece);
         }
 
-        boolean isPieceTaken = (this.basicBoard[move[0]][move[1]] != null); //Flag for sound
-
-
         this.basicBoard[move[0]][move[1]] = null; //Deletes any piece already on target square
-        this.basicBoard[move[0]][move[1]] = selectedPiece; //Sets piece to new location
-        this.board.clearAllIndicators(); //clears all indicators
+        this.basicBoard[move[0]][move[1]] = piece; //Sets piece to new location
 
-        selectedPiece.setColumn(move[0]);
-        selectedPiece.setRow(move[1]);
+        piece.setColumn(move[0]); //Sets new column
+        piece.setRow(move[1]); //Sets new Row
 
-        board.removeCheckIndicator();
 
-        //Promotion check
-        if(selectedPiece.getClass().getSimpleName().equals("Pawn") && (selectedPiece.getRow() == 0 || selectedPiece.getRow() == 7)) {
-            promote(selectedPiece);
-        }
+    }
 
+    private void updateUI() {
+        this.board.removeCheckIndicator(); //Remove Red Highlight on King
+        this.board.clearAllIndicators(); //Removes all movement indicators on board
+    }
+
+    private void isCheck(Piece piece) {
         this.inCheck = false;
-        boolean isCheckmate = false;
-
         //Look for check
-        King enemyKing = getKing(!selectedPiece.isWhite());
+        King enemyKing = getKing(!piece.isWhite());
         if(enemyKing.isInCheck(basicBoard)) {
             //Print all enemy check moves
-            if(getAllCheckMoves(!selectedPiece.isWhite()).isEmpty()) {
-                System.out.println((selectedPiece.isWhite() ? "White" : "Black") + " wins!!");
+            if(getAllCheckMoves(!piece.isWhite()).isEmpty()) {
+                System.out.println((piece.isWhite() ? "White" : "Black") + " wins!!");
                 //Go to end game screen
                 isCheckmate = true;
             }
             this.inCheck = true;
             board.highlightCheck(enemyKing);
         }
+    }
 
-        //Sound
-        if(isCheckmate) {
+    private void canPromote(Piece piece) {
+        if(piece.getClass().getSimpleName().equals("Pawn") && (piece.getRow() == 0 || piece.getRow() == 7)) {
+            promote(piece);
+        }
+    }
+
+    private void playSound(SoundEffectsController soundEffectsController) {
+        if(this.isCheckmate) {
             soundEffectsController.playSound("win");
         } else {
-            if(isPieceTaken) {
+            if(this.isPieceCaptured) {
                 soundEffectsController.playSound("capture");
             } else {
                 soundEffectsController.playSound("move");
             }
         }
+    }
 
 
+    //Get Pieces
 
+    public static List<Piece> getAllPieces() {
+        List<Piece> allPieces = new ArrayList<>();
+        allPieces.addAll(white.getPieces());
+        allPieces.addAll(black.getPieces());
+
+        return allPieces;
     }
 
     public static King getKing(boolean isWhite) {
@@ -218,12 +269,22 @@ public class Game {
         return knights;
     }
 
-    public boolean isInCheck() {
-        return inCheck;
+    public static List<Rook> getRooks(boolean isWhite) {
+        Player player = isWhite ? white : black;
+        List<Rook> rooks = new ArrayList<>();
+        for(Piece piece : player.getPieces()) {
+            if(piece.getClass().getSimpleName().equals("Rook")) {
+                rooks.add((Rook) piece);
+            }
+        }
+        return rooks;
     }
 
-    public void setInCheck(boolean inCheck) {
-        this.inCheck = inCheck;
+
+
+    //Check
+    public boolean isInCheck() {
+        return inCheck;
     }
 
     private List<byte[]> getAllCheckMoves(boolean isWhite) {
@@ -235,6 +296,8 @@ public class Game {
         return moves;
     }
 
+
+    //Promotion
     public void promote(Piece oldPiece) {
         Stage promoteStage = new Stage();
         promoteStage.initOwner(this.stage);
@@ -287,6 +350,12 @@ public class Game {
         });
 
         return btn;
+    }
+
+
+    //Castling
+    private void castle() {
+
     }
 
 

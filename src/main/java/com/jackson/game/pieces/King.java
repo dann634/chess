@@ -10,8 +10,12 @@ import java.util.function.Consumer;
 import java.util.function.ToDoubleBiFunction;
 
 public class King extends Piece {
+
+    private boolean canCastle;
+
     public King(byte row, byte column, boolean isWhite) {
         super(row, column, isWhite);
+        this.canCastle = true;
     }
 
     @Override
@@ -25,11 +29,11 @@ public class King extends Piece {
                 moves.add(new byte[]{(byte) i, (byte) j});
             }
         }
-        
+
         //Remove move onto king pos
         byte[] invalidMove = new byte[0];
-        for(byte[] move : moves) {
-            if(move[0] == this.getColumn() && move[1] == this.getRow()) {
+        for (byte[] move : moves) {
+            if (move[0] == this.getColumn() && move[1] == this.getRow()) {
                 invalidMove = move;
             }
         }
@@ -44,6 +48,7 @@ public class King extends Piece {
         areMovesOnBoard(moves); //Range Check
         removeCellsOccupiedByFriendly(board, moves); //Friendly Check
         removeProtectedMoves(moves, board); // Can't move into check
+        addCastlingMoves(moves, board);
 
         return moves;
 
@@ -53,9 +58,9 @@ public class King extends Piece {
         Set<byte[]> allEnemyMoves = Game.getAllEnemyMoves(this.isWhite(), board, true);
         // TODO: 09/05/2023 King can move backwards in line with linear pieces
         Set<byte[]> invalidMoves = new HashSet<>();
-        for(byte[] enemyMove : allEnemyMoves) {
-            for(byte[] kingMove : moves) {
-                if(enemyMove[0] == kingMove[0] && enemyMove[1] == kingMove[1]) {
+        for (byte[] enemyMove : allEnemyMoves) {
+            for (byte[] kingMove : moves) {
+                if (enemyMove[0] == kingMove[0] && enemyMove[1] == kingMove[1]) {
                     invalidMoves.add(kingMove);
                 }
             }
@@ -77,7 +82,7 @@ public class King extends Piece {
 
     @Override
     public List<byte[]> getCheckMoves(Piece[][] board) {
-       return getValidMoves(board);
+        return getValidMoves(board);
     }
 
     public boolean isInCheck(Piece[][] board) {
@@ -86,45 +91,45 @@ public class King extends Piece {
 
 
         List<Pawn> pieces = Game.getPawns(!isWhite()); //Pawns
-        for(Piece piece : pieces) {
+        for (Piece piece : pieces) {
             enemyMoves.addAll(piece.getValidMoves(board));
         }
-        
+
         List<Knight> knights = Game.getKnights(!isWhite());
-        for(Knight knight : knights) {
+        for (Knight knight : knights) {
             enemyMoves.addAll(knight.getValidMoves(board));
         }
-        
-        for(byte[] move : enemyMoves) {
-            if(move[0] == this.getColumn() && move[1] == this.getRow()) {
+
+        for (byte[] move : enemyMoves) {
+            if (move[0] == this.getColumn() && move[1] == this.getRow()) {
                 return true;
             }
         }
-        
+
         List<byte[]> offsets = new ArrayList<>(); // FIXME: 09/05/2023 diagonals causing the checking issue
         offsets.add(new byte[]{1, 0});
         offsets.add(new byte[]{-1, 0});
         offsets.add(new byte[]{0, 1});
         offsets.add(new byte[]{0, -1});
-        for(byte[] offset : offsets) {
-            if(checkOffsetForCheck(offset, board, false)) {
+        for (byte[] offset : offsets) {
+            if (checkOffsetForCheck(offset, board, false)) {
                 return true;
             }
         }
-        
+
         offsets.clear();
         offsets.add(new byte[]{1, 1});
         offsets.add(new byte[]{1, -1});
         offsets.add(new byte[]{-1, 1});
         offsets.add(new byte[]{-1, -1});
-        for(byte[] offset : offsets) {
-            if(checkOffsetForCheck(offset, board, true)) {
+        for (byte[] offset : offsets) {
+            if (checkOffsetForCheck(offset, board, true)) {
                 return true;
             }
         }
 
         return false;
-        
+
     }
 
     private boolean checkOffsetForCheck(byte[] offset, Piece[][] board, boolean isDiagonal) {
@@ -133,30 +138,29 @@ public class King extends Piece {
         byte newRow = (byte) (this.getRow() + offset[1]);
         Piece targetPiece;
 
-        while(newColumn >= 0 && newColumn <= 7 && newRow >= 0 && newRow <= 7) {
+        while (newColumn >= 0 && newColumn <= 7 && newRow >= 0 && newRow <= 7) {
 
             targetPiece = board[newColumn][newRow];
 
-            if(targetPiece != null) {
+            if (targetPiece != null) {
                 String className = targetPiece.getClass().getSimpleName();
-                if(isPieceSameColour(this, targetPiece)) { //friendly piece
-                    return false;
+                if (isPieceSameColour(this, targetPiece)) { //friendly piece
                 } else { //enemy piece
 
-                    if(className.equals("Queen")) { //Queen can attack from straight and diagonal
+                    if (className.equals("Queen")) { //Queen can attack from straight and diagonal
                         return true;
                     }
 
-                    if(isDiagonal && className.equals("Bishop")) { //Diagonal
+                    if (isDiagonal && className.equals("Bishop")) { //Diagonal
                         return true;
                     }
 
-                    if(!isDiagonal && className.equals("Rook")) { //Straight
+                    if (!isDiagonal && className.equals("Rook")) { //Straight
                         return true;
                     }
 
-                    return false;
                 }
+                return false;
             }
 
             columnMultiplier++;
@@ -166,6 +170,38 @@ public class King extends Piece {
         return false;
     }
 
-    // TODO: 01/05/2023 Add Method for all pieces to get all moves + moves that protect pieces
+
+    private void addCastlingMoves(List<byte[]> moves, Piece[][] board) {
+        if (!this.canCastle) { //Gate Keeping
+            return;
+        }
+
+        List<Rook> rooks = Game.getRooks(this.isWhite());
+        if(rooks.isEmpty()) {
+            return;
+        } else {
+            for(Rook rook : rooks) {
+                if(!rook.canCastle()) { //If rooks can't castle
+                    return;
+                }
+            }
+        }
+
+        if(isInCheck(board)) { //Can't castle in check
+            return;
+        }
+
+        //Has Castling Rights
+        for(Rook rook : rooks) {
+            if(rook.getColumn() == 0) { //Queen Side
+                moves.add(new byte[]{2, this.getRow()});
+            }
+            if(rook.getColumn() == 7) { //King Side
+                moves.add(new byte[]{6, this.getRow()});
+            }
+        }
+
+
+    }
 
 }
