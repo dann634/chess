@@ -22,12 +22,12 @@ public class Board {
     private GridPane root;
     private AnchorPane parentRoot;
     private HBox HBox;
-    private Piece[][] board;
-    private Game game;
-    private Cell[][] cells;
+    private final Piece[][] board;
+    private final Game game;
+    private final Cell[][] cells;
     private boolean isPieceTakenHostage;
     private ImageView floatingPiece;
-    private List<byte[]> currentMoves;
+    private final List<byte[]> currentMoves;
     private Piece selectedPiece;
     private SoundEffectsController soundEffectsController;
 
@@ -110,8 +110,8 @@ public class Board {
         for(int columns = 0; columns < board.length; columns++) {
             for(int rows = 0; rows < board[columns].length; rows++) {
                 if(board[columns][rows] != null) {
-                    cells[columns][rows].removeImageView();
-                    cells[columns][rows].addImageView(board[columns][rows].getImageView());
+                    removeImageView((byte) columns, (byte) rows);
+                    addImageView(board[columns][rows].getImageView(), (byte) columns, (byte) rows);
                 }
             }
         }
@@ -261,7 +261,7 @@ public class Board {
                 if(piece != null) {
                     floatingPiece.setImage(piece.getImageView().getImage());
                     floatingPiece.setVisible(true);
-//                    cells[gridIndex[0]][gridIndex[1]].removeImageView();
+//                    removeImageView(selectedPiece.getColumn(), selectedPiece.getRow());
                 }
             }
             floatingPiece.setX(mouseEvent.getSceneX());
@@ -286,18 +286,17 @@ public class Board {
                     break;
                 }
             }
+//            addImageView(selectedPiece.getImageView(), selectedPiece.getColumn(), selectedPiece.getRow());
             if(validSquare) {
                 //Move Piece
                 if(board[gridIndex[0]][gridIndex[1]] != null) {
-                    cells[gridIndex[0]][gridIndex[1]].removeImageView(); //Remove ImageView of Piece about to be eaten
+                    removeImageView(gridIndex[0], gridIndex[1]); //Remove ImageView of Piece about to be eaten
                 }
                 game.move(selectedPiece, gridIndex, soundEffectsController, mouseEvent);
-                cells[selectedPiece.getColumn()][selectedPiece.getRow()].addImageView(selectedPiece.getImageView()); //Remove imageview from prev location
+                addImageView(selectedPiece.getImageView(), selectedPiece.getColumn(), selectedPiece.getRow());//Remove imageview from prev location
                 setIndicatorsOnTop();
                 isBoardFacingWhite.setValue(!selectedPiece.isWhite());
-
             }
-//            cells[gridIndex[0]][gridIndex[1]].addImageView(floatingPiece);
         }
     }
 
@@ -340,7 +339,6 @@ public class Board {
     }
 
     public void addImageView(ImageView imageView, byte column, byte row) {
-        imageView.setX(this.cells[column][row].indicator.getCenterX() - (imageView.getFitWidth() / 2));
         this.cells[column][row].addImageView(imageView);
     }
 
