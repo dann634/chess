@@ -54,9 +54,6 @@ public class Player {
         return pawns;
     }
 
-
-
-
     public boolean isWhite() {
         return isWhite;
     }

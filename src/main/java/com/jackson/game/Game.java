@@ -133,10 +133,18 @@ public class Game {
     public void move(Piece selectedPiece, byte[] move , SoundEffectsController soundEffectsController, MouseEvent mouseEvent) {
         this.basicBoard[selectedPiece.getColumn()][selectedPiece.getRow()] = null; //Sets previous location to null
 
+        //Sounds
         if(this.basicBoard[move[0]][move[1]] != null) {
             soundEffectsController.playCaptureEffect();
         } else {
             soundEffectsController.playMoveEffect();
+        }
+
+        //Remove piece from pieces
+        Piece targetPiece = this.basicBoard[move[0]][move[1]];
+        if(targetPiece != null) {
+            Player player = targetPiece.isWhite() ? white : black;
+            player.getPieces().remove(targetPiece);
         }
 
         this.basicBoard[move[0]][move[1]] = null; //Deletes any piece already on target square
@@ -158,17 +166,16 @@ public class Game {
         //Look for check
         King enemyKing = getKing(!selectedPiece.isWhite());
         if(enemyKing.isInCheck(basicBoard)) {
+            //Print all enemy check moves
+            if(getAllCheckMoves(!selectedPiece.isWhite()).isEmpty()) {
+                System.out.println((selectedPiece.isWhite() ? "White" : "Black") + " wins!!");
+                //Go to end game screen
+            }
             this.inCheck = true;
             board.highlightCheck(enemyKing);
         }
-//        List<byte[]> newMoves = selectedPiece.getValidMoves(this.basicBoard);
-//        for(byte[] newMove : newMoves) {
-//            if(newMove[0] == enemyKing.getColumn() && newMove[1] == enemyKing.getRow()) {
-//                this.checkingPiece = selectedPiece;
-//                board.highlightCheck(enemyKing);
-//                break;
-//            }
-//        }
+
+
     }
 
     public static King getKing(boolean isWhite) {
@@ -210,4 +217,16 @@ public class Game {
     public void setInCheck(boolean inCheck) {
         this.inCheck = inCheck;
     }
+
+    private List<byte[]> getAllCheckMoves(boolean isWhite) { // FIXME: 11/05/2023 
+        List<byte[]> moves = new ArrayList<>();
+        Player player = isWhite ? white : black;
+        for(Piece piece : player.getPieces()) {
+            moves.addAll(piece.getCheckMoves(basicBoard));
+        }
+        return moves;
+    }
+
+
+
 }

@@ -41,7 +41,6 @@ public abstract class Piece {
         byte originalColumn = this.getColumn();
         byte originalRow = this.getRow();
         King king = Game.getKing(isWhite());
-        boolean checkBlocked;
 
         List<byte[]> validMoves = new ArrayList<>();
 
@@ -50,7 +49,6 @@ public abstract class Piece {
             board[move[0]][move[1]] = this; //Moves checkingPiece temporarily
             this.setColumn(move[0]);
             this.setRow(move[1]);
-            checkBlocked = true;
 
             //Check for check
             if(!king.isInCheck(board)) {
