@@ -31,7 +31,7 @@ public abstract class Piece {
 
     public abstract List<byte[]> getSquaresProtected(Piece[][] board);
 
-    public List<byte[]> getCheckMoves(Piece[][] board) {
+    public List<byte[]> getCheckMoves(Piece[][] board) { // FIXME: 09/05/2023 this doesnt work now
         //Implementation is the same for all pieces
         List<byte[]> moves = getValidMoves(board);
 
@@ -41,7 +41,6 @@ public abstract class Piece {
         byte originalColumn = this.getColumn();
         byte originalRow = this.getRow();
         King king = Game.getKing(isWhite());
-        boolean checkBlocked;
 
         List<byte[]> validMoves = new ArrayList<>();
 
@@ -50,7 +49,6 @@ public abstract class Piece {
             board[move[0]][move[1]] = this; //Moves checkingPiece temporarily
             this.setColumn(move[0]);
             this.setRow(move[1]);
-            checkBlocked = true;
 
             //Check for check
             if(!king.isInCheck(board)) {

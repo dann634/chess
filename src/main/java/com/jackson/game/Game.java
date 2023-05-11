@@ -93,17 +93,6 @@ public class Game {
         return allPieces;
     }
 
-    public static Set<byte[]> getEnemyPawnDiagonals(boolean isWhite) {
-        Player player = isWhite ? black : white;
-        Set<byte[]> diagonals = new HashSet<>();
-        for(Pawn pawn : player.getAllPawns()) {
-            diagonals.addAll(pawn.getDiagonals());
-        }
-        diagonals.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
-
-        return diagonals;
-    }
-
     public static void rotateAllPieces(short rotation) {
         for(Piece piece : getAllPieces()) {
             piece.getImageView().setRotate(rotation);
@@ -131,6 +120,7 @@ public class Game {
     }
 
     public void move(Piece selectedPiece, byte[] move , SoundEffectsController soundEffectsController, MouseEvent mouseEvent) {
+        // FIXME: 09/05/2023 pieces arent removed from Piece[][]
         this.basicBoard[selectedPiece.getColumn()][selectedPiece.getRow()] = null; //Sets previous location to null
 
         if(this.basicBoard[move[0]][move[1]] != null) {
@@ -157,18 +147,15 @@ public class Game {
 
         //Look for check
         King enemyKing = getKing(!selectedPiece.isWhite());
-        if(enemyKing.isInCheck(basicBoard)) {
+        if(enemyKing.isInCheck(basicBoard)) { // FIXME: 09/05/2023 scholars mate doenst work (check moves broken again)
+
+            if(isCheckMate(!selectedPiece.isWhite())) {
+                System.out.println(selectedPiece.isWhite() ? "White" : "Black" + " has won by checkmate");
+            }
+
             this.inCheck = true;
             board.highlightCheck(enemyKing);
         }
-//        List<byte[]> newMoves = selectedPiece.getValidMoves(this.basicBoard);
-//        for(byte[] newMove : newMoves) {
-//            if(newMove[0] == enemyKing.getColumn() && newMove[1] == enemyKing.getRow()) {
-//                this.checkingPiece = selectedPiece;
-//                board.highlightCheck(enemyKing);
-//                break;
-//            }
-//        }
     }
 
     public static King getKing(boolean isWhite) {
@@ -209,5 +196,20 @@ public class Game {
 
     public void setInCheck(boolean inCheck) {
         this.inCheck = inCheck;
+    }
+
+    private List<byte[]> getAllCheckMoves(boolean isWhite) {
+        List<byte[]> moves = new ArrayList<>();
+        Player player = isWhite ? white : black;
+        for(Piece piece : player.getPieces()) {
+            moves.addAll(piece.getCheckMoves(basicBoard));
+        }
+        return moves;
+    }
+
+    private boolean isCheckMate(boolean isWhite) {
+        List<byte[]> allMoves = getAllCheckMoves(isWhite);
+        System.out.println("Moves Size: " + allMoves.size());
+        return allMoves.isEmpty();
     }
 }
