@@ -44,6 +44,8 @@ public class Game {
 
         Thread gameThread = new Thread(() -> {
 
+            // TODO: 11/05/2023 Dont need this thread
+
             white = new Player(true);
             black = new Player(false);
 
@@ -129,18 +131,19 @@ public class Game {
     public void move(Piece selectedPiece, byte[] move , SoundEffectsController soundEffectsController) {
         this.basicBoard[selectedPiece.getColumn()][selectedPiece.getRow()] = null; //Sets previous location to null
 
-        //Sounds
-        if(this.basicBoard[move[0]][move[1]] != null) {
-            soundEffectsController.playCaptureEffect();
-        } else {
-            soundEffectsController.playMoveEffect();
-        }
-
         //Remove piece from pieces
         Piece targetPiece = this.basicBoard[move[0]][move[1]];
         if(targetPiece != null) {
             Player player = targetPiece.isWhite() ? white : black;
             player.getPieces().remove(targetPiece);
+        }
+
+
+        //Sounds
+        if(this.basicBoard[move[0]][move[1]] != null) {
+            soundEffectsController.playSound("capture");
+        } else {
+            soundEffectsController.playSound("move");
         }
 
         this.basicBoard[move[0]][move[1]] = null; //Deletes any piece already on target square
@@ -165,6 +168,7 @@ public class Game {
             //Print all enemy check moves
             if(getAllCheckMoves(!selectedPiece.isWhite()).isEmpty()) {
                 System.out.println((selectedPiece.isWhite() ? "White" : "Black") + " wins!!");
+                soundEffectsController.playSound("win");
                 //Go to end game screen
             }
             this.inCheck = true;
@@ -214,7 +218,7 @@ public class Game {
         this.inCheck = inCheck;
     }
 
-    private List<byte[]> getAllCheckMoves(boolean isWhite) { // FIXME: 11/05/2023 
+    private List<byte[]> getAllCheckMoves(boolean isWhite) {
         List<byte[]> moves = new ArrayList<>();
         Player player = isWhite ? white : black;
         for(Piece piece : player.getPieces()) {
@@ -260,7 +264,15 @@ public class Game {
             player.getPieces().add(piece);
 
             this.board.removeImageView(oldPiece.getColumn(), oldPiece.getRow());
+            piece.getImageView().setTranslateX(-8); //FOr some reason it's not centred
+            piece.getImageView().setTranslateY(-5);
             this.board.addImageView(piece.getImageView(), piece.getColumn(), piece.getRow());
+
+            //Highlight check
+            King king = Game.getKing(!piece.isWhite());
+            if(king.isInCheck(this.basicBoard)) {
+                board.highlightCheck(king);
+            }
 
             promotionStage.close();
 

@@ -93,6 +93,4 @@ public class Pawn extends Piece {
         return getDiagonals();
     }
 
-
-
 }

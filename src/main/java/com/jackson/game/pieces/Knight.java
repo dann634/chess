@@ -50,7 +50,9 @@ public class Knight extends Piece {
 
     @Override
     public List<byte[]> getLegalMoves(Piece[][] board) {
-        return getValidMoves(board);
+        List<byte[]> moves = getValidMoves(board);
+        removePinnedMoves(moves, board);
+        return moves;
     }
 
     @Override

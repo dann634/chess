@@ -1,8 +1,12 @@
 package com.jackson.ui;
 
+import com.jackson.game.pieces.Piece;
+
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SoundEffectsController {
 
@@ -17,7 +21,7 @@ public class SoundEffectsController {
     private final String WIN_DIR = baseDir + "win.wav";
 
 
-    public SoundEffectsController() {
+    public SoundEffectsController() { // FIXME: 11/05/2023 Sometimes piece is stuck waiting for sound
         try {
             this.filePath = MOVE_DIR;
             audioInputStream = AudioSystem.getAudioInputStream(new File(filePath).getAbsoluteFile());
@@ -49,33 +53,46 @@ public class SoundEffectsController {
             stop();
             audioInputStream = AudioSystem.getAudioInputStream(new File(filePath).getAbsoluteFile());
             clip.open(audioInputStream);
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            throw new RuntimeException(e);
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | IllegalStateException ignored) {
         }
     }
 
-    public void playMoveEffect() {
-        this.filePath = MOVE_DIR;
-        resetAudioStream();
+//    public void playMoveEffect() {
+//        this.filePath = MOVE_DIR;
+//        resetAudioStream();
 //        play();
-    }
-
-    public void playCaptureEffect() {
-        this.filePath = CAPTURE_DIR;
-        resetAudioStream();
+//    }
+//
+//    public void playCaptureEffect() {
+//        this.filePath = CAPTURE_DIR;
+//        resetAudioStream();
 //        play();
-    }
+//    }
+//
+//    public void playCastleEffect() {
+//        this.filePath = CASTLE_DIR;
+//        resetAudioStream();
+//        play();
+//    }
+//
+//    public void playWinEffect() {
+//        this.filePath = WIN_DIR;
+//        resetAudioStream();
+//        play();
+//    }
 
-    public void playCastleEffect() {
-        this.filePath = CASTLE_DIR;
+    public void playSound(String soundEffectName) {
+        Map<String, String> map = new HashMap<>();
+        map.put("move", MOVE_DIR);
+        map.put("capture", CAPTURE_DIR);
+        map.put("castle", CASTLE_DIR);
+        map.put("win", WIN_DIR);
+        String dir = map.get(soundEffectName);
+
+        this.filePath = dir;
         resetAudioStream();
         play();
-    }
 
-    public void playWinEffect() {
-        this.filePath = WIN_DIR;
-        resetAudioStream();
-        play();
     }
 
 
