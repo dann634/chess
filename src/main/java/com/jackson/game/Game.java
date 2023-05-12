@@ -38,6 +38,9 @@ public class Game {
     private boolean isPieceCaptured;
 
     private boolean isCastleMove;
+    private boolean isKingSide;
+
+    private Rook castlingRook;
 
 
     public void start(Stage stage) {
@@ -160,7 +163,7 @@ public class Game {
 
         /*
         - Plays correct sound for move
-        - If checkmate, don't play move or capture as it bugs
+        - If check mate, don't play move or capture as it bugs
          */
         playSound(soundEffectsController);
 
@@ -175,30 +178,11 @@ public class Game {
 
         isMoveCastle(piece, move);
 
-        Rook targetRook = null;
-        boolean isKingSide = false;
-
-        if(pieceType.equals("King")) {
-
-
-            byte newKingColumn = (byte) (isKingSide ? 6 : 2); // TODO: 11/05/2023 Move this to castle function after isMoveCastle is called
-            byte newRookColumn = (byte) (isKingSide ? 5 : 3);
-
-            board.removeImageView(king.getColumn(), king.getRow());
-            king.setColumn(newKingColumn);
-            this.basicBoard[newKingColumn][king.getRow()] = king;
-            board.addImageView(king.getImageView(), king.getColumn(), king.getRow());
-
-            board.removeImageView(targetRook.getColumn(), targetRook.getRow());
-            targetRook.setColumn(newRookColumn);
-            this.basicBoard[newRookColumn][targetRook.getRow()] = targetRook;
-            board.addImageView(targetRook.getImageView(), targetRook.getColumn(), targetRook.getRow());
-
-            king.setCanCastle(false);
-        }
-
-
         //Normal Movement
+
+        if(this.isCastleMove) {
+            return;
+        }
 
         this.isPieceCaptured = (this.basicBoard[move[0]][move[1]] != null); //Flag for sound
 
@@ -256,6 +240,25 @@ public class Game {
             ((Rook) piece).setCanCastle(false); //Removes Castling rights for Rook
         }
 
+        if(!this.isCastleMove) {
+            return;
+        }
+
+        King king = (King) piece;
+
+        byte newKingColumn = (byte) (isKingSide ? 6 : 2); // TODO: 11/05/2023 Move this to castle function after isMoveCastle is called
+        byte newRookColumn = (byte) (isKingSide ? 5 : 3);
+
+        board.removeImageView(king.getColumn(), king.getRow());
+        king.setColumn(newKingColumn);
+        this.basicBoard[newKingColumn][king.getRow()] = king;
+
+        board.removeImageView(this.castlingRook.getColumn(), this.castlingRook.getRow());
+        this.castlingRook.setColumn(newRookColumn);
+        this.basicBoard[newRookColumn][this.castlingRook.getRow()] = this.castlingRook;
+        board.addImageView(this.castlingRook.getImageView(), this.castlingRook.getColumn(), this.castlingRook.getRow());
+
+        king.setCanCastle(false);
 
 
     }
@@ -464,6 +467,8 @@ public class Game {
         for(Rook rook : rooks) {
             if(move[0] == rook.getColumn() && move[1] == rook.getRow()) {
                 this.isCastleMove = true;
+                this.isKingSide = move[0] == 7;
+                this.castlingRook = rook;
                 break;
             }
         }
