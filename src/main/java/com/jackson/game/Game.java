@@ -240,6 +240,9 @@ public class Game {
 
         King king = (King) piece;
 
+        this.basicBoard[king.getColumn()][king.getRow()] = null;
+        this.basicBoard[this.castlingRook.getColumn()][this.castlingRook.getRow()] = null;
+
         byte newKingColumn = (byte) (isKingSide ? 6 : 2); // TODO: 11/05/2023 Move this to castle function after isMoveCastle is called
         byte newRookColumn = (byte) (isKingSide ? 5 : 3);
 
@@ -260,6 +263,8 @@ public class Game {
     private void playSound(SoundEffectsController soundEffectsController) {
         if(this.isGameOver) {
             soundEffectsController.playSound("win");
+        } else if(this.isCastleMove) {
+            soundEffectsController.playSound("castle");
         } else {
             if(this.isPieceCaptured) {
                 soundEffectsController.playSound("capture");
