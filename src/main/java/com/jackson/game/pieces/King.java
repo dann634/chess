@@ -13,7 +13,7 @@ public class King extends Piece {
 
     private boolean canCastle;
 
-    public King(byte row, byte column, boolean isWhite) {
+    public King(byte row, byte column, boolean isWhite) { // FIXME: 21/05/2023 King can move back on beam
         super(row, column, isWhite);
         this.canCastle = true;
     }

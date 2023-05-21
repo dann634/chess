@@ -171,18 +171,12 @@ public class Board {
     }
 
     class Cell {
-
-        private byte row;
-        private byte column;
         private Pane pane;
         private Circle indicator;
 
         private boolean isLight;
 
         public Cell(byte row, byte column) {
-            this.row = row;
-            this.column = column;
-
             this.pane = new Pane();
             this.pane.getStyleClass().add("cell");
             this.isLight = (row + column) % 2 == 0;

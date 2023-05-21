@@ -1,0 +1,16 @@
+#vbox {
+    -fx-pref-width: 600;
+    -fx-pref-height: 600;
+    -fx-alignment: center;
+    -fx-spacing: 12
+}
+
+#btn {
+    -fx-pref-height: 75;
+    -fx-pref-width: 120;
+}
+
+#title {
+    -fx-font-weight: bold;
+    -fx-font-size: 36;
+}

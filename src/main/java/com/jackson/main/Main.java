@@ -17,7 +17,7 @@ public class Main extends Application {
         stage.setResizable(false);
 
         Game game = new Game();
-        game.start(stage);
+        game.start();
 
     }
 

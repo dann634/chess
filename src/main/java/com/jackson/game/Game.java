@@ -3,6 +3,7 @@ package com.jackson.game;
 import com.jackson.game.pieces.*;
 import com.jackson.main.Main;
 import com.jackson.ui.Board;
+import com.jackson.ui.EndGameController;
 import com.jackson.ui.SoundEffectsController;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -34,7 +35,8 @@ public class Game {
     private boolean inCheck;
     private Stage stage;
 
-    private boolean isCheckmate;
+    private boolean isGameOver;
+    private String winReason;
     private boolean isPieceCaptured;
 
     private boolean isCastleMove;
@@ -43,50 +45,29 @@ public class Game {
     private Rook castlingRook;
 
 
-    public void start(Stage stage) {
+
+    //Game Flow
+    public void start() {
         this.inCheck = false;
         this.basicBoard = new Piece[8][8];
-        this.stage = stage;
+        this.stage = Main.getStage();
         this.board = new Board(this.stage, this.basicBoard, this);
         isWhiteTurn = initTurnProperty();
 
-        Thread gameThread = new Thread(() -> {
+        white = new Player(true);
+        black = new Player(false);
 
-            // TODO: 11/05/2023 Dont need this thread
+        //Add all pieces
+        white.initializePieces(this.basicBoard);
+        black.initializePieces(this.basicBoard);
 
-            white = new Player(true);
-            black = new Player(false);
+        //Draw board for first time
+        board.drawBoard(this.basicBoard);
 
-            //Add all pieces
-            white.initializePieces(this.basicBoard);
-            black.initializePieces(this.basicBoard);
+    }
 
-            //Draw board for first time
-            Platform.runLater(() -> board.drawBoard(this.basicBoard));
-
-            //Main Game Loop
-            while(true) {
-                if(white.hasMoved()) {
-                    white.setHasMoved(false);
-                    isWhiteTurn.set(false);
-                } else if(black.hasMoved()) {
-                    black.setHasMoved(false);
-                    isWhiteTurn.set(true);
-                }
-
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-            }
-
-        });
-
-        gameThread.setDaemon(true);
-        gameThread.start();
-
+    public void reset() {
+        start();
     }
 
     public static Set<byte[]> getAllEnemyMoves(boolean isWhite, Piece[][] board, boolean isProtected) {
@@ -99,9 +80,6 @@ public class Game {
         moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
         return moves;
     }
-
-
-
 
     public static void rotateAllPieces(short rotation) {
         for(Piece piece : getAllPieces()) {
@@ -167,6 +145,11 @@ public class Game {
          */
         playSound(soundEffectsController);
 
+        /*
+        Updates move variables for players
+         */
+        updateTurns(selectedPiece);
+
 
 
     }
@@ -217,13 +200,24 @@ public class Game {
         if(enemyKing.isInCheck(basicBoard)) {
             //Print all enemy check moves
             if(getAllCheckMoves(!piece.isWhite()).isEmpty()) {
-                System.out.println((piece.isWhite() ? "White" : "Black") + " wins!!");
                 //Go to end game screen
-                isCheckmate = true;
+                isGameOver = true;
+                this.winReason = "checkmate";
             }
             this.inCheck = true;
             board.highlightCheck(enemyKing);
+        } else {
+            if(getAllEnemyMoves(piece.isWhite(), basicBoard, false).isEmpty()) {
+                isGameOver = true;
+                this.winReason = "stalemate";
+            }
         }
+
+        if(this.isGameOver) {
+            //Go to end game screen
+            stage.setScene(new EndGameController().getScene(winReason, !piece.isWhite()));
+        }
+
     }
 
     private void canPromote(Piece piece) {
@@ -264,7 +258,7 @@ public class Game {
     }
 
     private void playSound(SoundEffectsController soundEffectsController) {
-        if(this.isCheckmate) {
+        if(this.isGameOver) {
             soundEffectsController.playSound("win");
         } else {
             if(this.isPieceCaptured) {
@@ -273,6 +267,10 @@ public class Game {
                 soundEffectsController.playSound("move");
             }
         }
+    }
+
+    private void updateTurns(Piece piece) {
+        isWhiteTurn.setValue(!piece.isWhite());
     }
 
 
