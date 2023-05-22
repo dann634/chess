@@ -138,11 +138,23 @@ public class Board {
     }
 
     private byte[] getGridIndexFromMousePos(double mouseX, double mouseY) {
+
         byte[] index = new byte[2];
-        index[0] =  (byte)(mouseX / 75);
+        index[0] =  (byte) (mouseX / 75);
         index[1] = (byte) (mouseY / 75);
 
+        if(index[1] > 7) { //board slightly bigger than intended
+            index[1] = 7;
+        }
+
+        if(index[0] > 7) {
+            index[0] = 7;
+        }
+
         //account for board rotation
+        if(!game.isWhiteTurn()) {
+//            index[0] =
+        }
 
         return index;
     }
@@ -171,10 +183,10 @@ public class Board {
     }
 
     class Cell {
-        private Pane pane;
-        private Circle indicator;
+        private final Pane pane;
+        private final Circle indicator;
 
-        private boolean isLight;
+        private final boolean isLight;
 
         public Cell(byte row, byte column) {
             this.pane = new Pane();
@@ -244,13 +256,19 @@ public class Board {
         public void handle(MouseEvent mouseEvent) {
             //Show moves
             //Take Piece imageview and make it follow mouse (use property)
+//            System.out.println("------");
+//            System.out.println("(" + mouseEvent.getSceneX() + "," + mouseEvent.getSceneY() + ")");
+//            System.out.println("(" + mouseEvent.getX() + "," + mouseEvent.getY() + ")");
+
+
             if(!isPieceTakenHostage) {
                 showMoves(mouseEvent);
                 isPieceTakenHostage = true;
 
+                // TODO: 22/05/2023 remove imageview from board while takenHostage
+
                 byte[] gridIndex = getGridIndexFromMousePos(mouseEvent.getSceneX(), mouseEvent.getSceneY());
 
-                // FIXME: 26/04/2023 
                 Piece piece = board[gridIndex[0]][gridIndex[1]];
                 if(piece != null) {
                     floatingPiece.setImage(piece.getImageView().getImage());
@@ -337,6 +355,10 @@ public class Board {
 
     public void removeImageView(byte column, byte row) {
         this.cells[column][row].removeImageView();
+    }
+
+    public void setIsBoardFacingWhite(boolean isBoardFacingWhite) {
+        this.isBoardFacingWhite.set(isBoardFacingWhite);
     }
 
 

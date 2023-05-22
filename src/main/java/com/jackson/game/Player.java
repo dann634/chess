@@ -1,10 +1,6 @@
 package com.jackson.game;
 
 import com.jackson.game.pieces.*;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +8,10 @@ import java.util.List;
 public class Player {
 
     private final boolean isWhite;
-    private boolean hasMoved;
     private List<Piece> pieces;
 
     public Player(boolean isWhite) {
         this.isWhite = isWhite;
-        this.hasMoved = false;
     }
 
 
@@ -47,14 +41,6 @@ public class Player {
 
     public List<Piece> getPieces() {
         return pieces;
-    }
-
-    public boolean hasMoved() {
-        return hasMoved;
-    }
-
-    public void setHasMoved(boolean hasMoved) {
-        this.hasMoved = hasMoved;
     }
 
     public void setPiecesEnabled(boolean isEnabled) {

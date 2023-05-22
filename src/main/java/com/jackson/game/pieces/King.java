@@ -43,11 +43,11 @@ public class King extends Piece {
     }
 
     @Override
-    public List<byte[]> getValidMoves(Piece[][] board) { // FIXME: 09/05/2023 this doesnt work
+    public List<byte[]> getValidMoves(Piece[][] board) {
         List<byte[]> moves = getAllMoves();
         areMovesOnBoard(moves); //Range Check
         removeCellsOccupiedByFriendly(board, moves); //Friendly Check
-        removeProtectedMoves(moves, board); // Can't move into check
+        removeProtectedMoves(moves, board);// Can't move into check
         addCastlingMoves(moves, board);
 
         return moves;
@@ -56,7 +56,6 @@ public class King extends Piece {
 
     private void removeProtectedMoves(List<byte[]> moves, Piece[][] board) {
         Set<byte[]> allEnemyMoves = Game.getAllEnemyMoves(this.isWhite(), board, true);
-        // TODO: 09/05/2023 King can move backwards in line with linear pieces
         Set<byte[]> invalidMoves = new HashSet<>();
         for (byte[] enemyMove : allEnemyMoves) {
             for (byte[] kingMove : moves) {
@@ -66,6 +65,32 @@ public class King extends Piece {
             }
         }
         moves.removeAll(invalidMoves);
+        linearBackTracking(moves, board);
+    }
+
+    private void linearBackTracking(List<byte[]> moves, Piece[][] board) {
+        //Straight
+        List<byte[]> offsets = new ArrayList<>();
+        offsets.add(new byte[]{1, 0});
+        offsets.add(new byte[]{-1, 0});
+        offsets.add(new byte[]{0, 1});
+        offsets.add(new byte[]{0, -1});
+        for(byte[] offset : offsets) {
+            if(checkOffsetForCheck(offset, board, false)) {
+                moves.removeIf(n -> n[0] == (this.column + (offset[0] * -1)) && n[1] == this.getRow() + (offset[1] * -1));
+            }
+        }
+
+        offsets.clear();
+        offsets.add(new byte[]{1, 1});
+        offsets.add(new byte[]{1, -1});
+        offsets.add(new byte[]{-1, 1});
+        offsets.add(new byte[]{-1, -1});
+        for(byte[] offset : offsets) {
+            if(checkOffsetForCheck(offset, board, true)) {
+                moves.removeIf(n -> n[0] == (this.column + (offset[0] * -1)) && n[1] == this.getRow() + (offset[1] * -1));
+            }
+        }
     }
 
     @Override

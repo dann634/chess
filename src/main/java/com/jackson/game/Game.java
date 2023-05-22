@@ -5,7 +5,6 @@ import com.jackson.main.Main;
 import com.jackson.ui.Board;
 import com.jackson.ui.EndGameController;
 import com.jackson.ui.SoundEffectsController;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
@@ -27,7 +26,7 @@ public class Game {
     private static Player white;
     private static Player black;
 
-    private static BooleanProperty isWhiteTurn;
+    private BooleanProperty isWhiteTurn;
 
     private Piece[][] basicBoard;
 
@@ -92,6 +91,7 @@ public class Game {
         property.addListener((observableValue, aBoolean, t1) -> {
             white.setPiecesEnabled(t1);
             black.setPiecesEnabled(!t1);
+            board.setIsBoardFacingWhite(!t1);
         });
         return property;
     }
@@ -478,7 +478,14 @@ public class Game {
 
     }
 
+    //Getters and Setters
 
 
+    public boolean isWhiteTurn() {
+        return isWhiteTurn.get();
+    }
 
+    public void setIsWhiteTurn(boolean isWhiteTurn) {
+        this.isWhiteTurn.set(isWhiteTurn);
+    }
 }
