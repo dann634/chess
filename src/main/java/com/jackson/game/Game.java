@@ -69,16 +69,7 @@ public class Game {
         start();
     }
 
-    public static Set<byte[]> getAllEnemyMoves(boolean isWhite, Piece[][] board, boolean isProtected) {
-        Set<byte[]> moves = new HashSet<>();
-        Player player = isWhite ? black : white;
-        List<Piece> pieces = player.getPieces();
-        for(Piece piece : pieces) {
-            moves.addAll(isProtected ? piece.getSquaresProtected(board) : piece.getValidMoves(board));
-        }
-        moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
-        return moves;
-    }
+
 
     public static void rotateAllPieces(short rotation) {
         for(Piece piece : getAllPieces()) {
@@ -215,7 +206,7 @@ public class Game {
 
         if(this.isGameOver) {
             //Go to end game screen
-            stage.setScene(new EndGameController().getScene(winReason, !piece.isWhite()));
+            stage.setScene(new EndGameController().getScene(winReason, piece.isWhite()));
         }
 
     }
@@ -279,7 +270,7 @@ public class Game {
     }
 
 
-    //Get Pieces
+    //Get Pieces / Moves
 
     public static List<Piece> getAllPieces() {
         List<Piece> allPieces = new ArrayList<>();
@@ -287,6 +278,17 @@ public class Game {
         allPieces.addAll(black.getPieces());
 
         return allPieces;
+    }
+
+    public static Set<byte[]> getAllEnemyMoves(boolean isWhite, Piece[][] board, boolean isProtected) { // FIXME: 22/05/2023
+        Set<byte[]> moves = new HashSet<>();
+        Player player = isWhite ? black : white;
+        List<Piece> pieces = player.getPieces();
+        for(Piece piece : pieces) {
+            moves.addAll(isProtected ? piece.getSquaresProtected(board) : piece.getValidMoves(board));
+        }
+        moves.removeIf(n -> n[0] < 0 || n[0] > 7 || n[1] < 0 || n[1] > 7);
+        return moves;
     }
 
     public static King getKing(boolean isWhite) {
@@ -385,6 +387,7 @@ public class Game {
 
             Player player = piece.isWhite() ? white : black;
             player.getPieces().add(piece);
+            player.getPieces().remove(oldPiece);
 
             this.board.removeImageView(oldPiece.getColumn(), oldPiece.getRow());
             piece.getImageView().setTranslateX(-8); //FOr some reason it's not centred
@@ -406,7 +409,7 @@ public class Game {
 
 
     //Castling
-    public static boolean[] canCastle(boolean isWhite, Piece[][] board) {
+    public static boolean[] canCastle(boolean isWhite, Piece[][] board, Piece piece) {
 
         King king = Game.getKing(isWhite);
 
@@ -424,6 +427,14 @@ public class Game {
         List<Rook> rooks = Game.getRooks(isWhite);
         if(rooks.isEmpty()) {
             return null;
+        }
+
+        if(board[0][piece.getRow()] == null) {
+            canQueenSide = false;
+        }
+
+        if(board[7][piece.getRow()] == null) {
+            canKingSide = false;
         }
 
         //If rooks lost castling rights

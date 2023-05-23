@@ -58,6 +58,6 @@ public class Knight extends Piece {
     @Override
     public List<byte[]> getSquaresProtected(Piece[][] board) {
         return getValidMoves(board);
-    }
+    } // FIXME: 22/05/2023 can take protected
 
 }

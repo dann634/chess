@@ -258,7 +258,6 @@ public class Board {
             //Take Piece imageview and make it follow mouse (use property)
 //            System.out.println("------");
 //            System.out.println("(" + mouseEvent.getSceneX() + "," + mouseEvent.getSceneY() + ")");
-//            System.out.println("(" + mouseEvent.getX() + "," + mouseEvent.getY() + ")");
 
 
             if(!isPieceTakenHostage) {

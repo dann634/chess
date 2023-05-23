@@ -197,7 +197,7 @@ public class King extends Piece {
 
 
     private void addCastlingMoves(List<byte[]> moves, Piece[][] board) {
-        boolean[] canCastle = Game.canCastle(this.isWhite(), board);
+        boolean[] canCastle = Game.canCastle(this.isWhite(), board, this);
 
 
         if(canCastle == null) {

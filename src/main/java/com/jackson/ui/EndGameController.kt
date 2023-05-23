@@ -21,7 +21,13 @@ class EndGameController {
         } else {
             "Black"
         }
-        val title = Label("$winningColour won by $winReason!!")
+
+        val titleText = if(winReason == "checkmate") {
+            "$winningColour won by checkmate!!"
+        } else {
+            "Draw by Stalemate"
+        }
+        val title = Label(titleText)
         title.id = "title"
 
         val hBox = HBox(12.0)
