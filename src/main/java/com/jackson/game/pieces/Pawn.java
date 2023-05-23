@@ -48,7 +48,7 @@ public class Pawn extends Piece {
                 if(this.row != startingRow) {
                     invalidMoves.add(moves.get(1)); //Move two forward
                 }
-            } catch (ArrayIndexOutOfBoundsException ignored) {} //I dont care to fix this
+            } catch (ArrayIndexOutOfBoundsException ignored) {} //I don't care to fix this
 
             //Diagonals
             for (int i = 2; i < 4; i++) {

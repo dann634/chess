@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Queen extends Piece {
 
-    private List<byte[]> offsetList;
+    private final List<byte[]> offsetList;
 
     public Queen(byte row, byte column, boolean isWhite) {
         super(row, column, isWhite);
@@ -31,8 +31,7 @@ public class Queen extends Piece {
 
     @Override
     public List<byte[]> getValidMoves(Piece[][] board) {
-        List<byte[]> moves = generateLinearMoves(this.offsetList, board, false);
-        return moves;
+        return generateLinearMoves(this.offsetList, board, false);
     }
 
     @Override

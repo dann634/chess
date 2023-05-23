@@ -1,7 +1,5 @@
 package com.jackson.ui;
 
-import com.jackson.game.pieces.Piece;
-
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
@@ -15,10 +13,7 @@ public class SoundEffectsController {
     private String filePath;
 
     private final String baseDir = "src/main/resources/sound/";
-    private final String CAPTURE_DIR = baseDir + "capture.wav";
-    private final String CASTLE_DIR = baseDir + "castle.wav";
     private final String MOVE_DIR = baseDir + "move.wav";
-    private final String WIN_DIR = baseDir + "win.wav";
 
 
     public SoundEffectsController() { // FIXME: 11/05/2023 Sometimes piece is stuck waiting for sound
@@ -60,12 +55,14 @@ public class SoundEffectsController {
     public void playSound(String soundEffectName) {
         Map<String, String> map = new HashMap<>();
         map.put("move", MOVE_DIR);
+        String CAPTURE_DIR = baseDir + "capture.wav";
         map.put("capture", CAPTURE_DIR);
+        String CASTLE_DIR = baseDir + "castle.wav";
         map.put("castle", CASTLE_DIR);
+        String WIN_DIR = baseDir + "win.wav";
         map.put("win", WIN_DIR);
-        String dir = map.get(soundEffectName);
 
-        this.filePath = dir;
+        this.filePath = map.get(soundEffectName);
         resetAudioStream();
         play();
 

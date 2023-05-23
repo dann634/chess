@@ -11,11 +11,12 @@ import javafx.scene.layout.VBox
 
 class EndGameController {
 
-    fun getScene(winReason : String, isWhiteWinner : Boolean) : Scene {
+    fun getScene(winReason : String, isWhiteWinner : Boolean, moveCounter : Int) : Scene {
         val vBox = VBox()
         vBox.id = "vbox"
 
 
+        //Title
         val winningColour = if(isWhiteWinner) {
             "White"
         } else {
@@ -30,9 +31,13 @@ class EndGameController {
         val title = Label(titleText)
         title.id = "title"
 
+        //Move Label
+        val moveLabel = Label("Moves: $moveCounter")
+        moveLabel.id = "moveLabel"
+
         val hBox = HBox(12.0)
         hBox.alignment = Pos.CENTER
-        hBox.children.addAll(createPlayAgainButton(), createExitButton())
+        hBox.children.addAll(createPlayAgainButton(), moveLabel, createExitButton())
 
         vBox.children.addAll(title, hBox)
 

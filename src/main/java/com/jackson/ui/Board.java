@@ -3,7 +3,6 @@ package com.jackson.ui;
 import com.jackson.game.Game;
 import com.jackson.game.pieces.King;
 import com.jackson.game.pieces.Piece;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,10 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
-    private SimpleBooleanProperty isBoardFacingWhite;
     private GridPane root;
-    private AnchorPane parentRoot;
-    private HBox HBox;
     private final Piece[][] board;
     private final Game game;
     private final Cell[][] cells;
@@ -49,31 +45,18 @@ public class Board {
         this.soundEffectsController = new SoundEffectsController();
         this.floatingPiece = initFloatingPiece();
         this.floatingPiece.setVisible(true);
-        this.parentRoot = new AnchorPane();
-        this.parentRoot.setId("anchorPane");
+        AnchorPane parentRoot = new AnchorPane();
+        parentRoot.setId("anchorPane");
 
-        this.HBox = new HBox();
+        @SuppressWarnings("unused") javafx.scene.layout.HBox HBox = new HBox();
 
-        this.isBoardFacingWhite = new SimpleBooleanProperty(true);
-        this.isBoardFacingWhite.addListener((observableValue, aBoolean, current) -> {
-            //Rotates Board
-//            if (current) {
-//                this.root.setRotate(0);
-//                Game.rotateAllPieces((short) 0);
-//            } else {
-//                root.setRotate(180);
-//                Game.rotateAllPieces((short) 180);
-//            }
-        });
         this.root = new GridPane();
         addCellsToGrid(); //Adds cells to board
 
-        this.parentRoot.getChildren().add(this.root);
-        this.parentRoot.getChildren().add(this.floatingPiece);
+        parentRoot.getChildren().add(this.root);
+        parentRoot.getChildren().add(this.floatingPiece);
 
-//        this.HBox.getChildren().add(this.parentRoot);
-//        this.HBox.getChildren().add(getRightMenu());
-        Scene scene = new Scene(this.parentRoot);
+        Scene scene = new Scene(parentRoot);
         scene.getStylesheets().add("file:src/main/resources/stylesheets/board.css");
         return scene;
     }
@@ -149,11 +132,6 @@ public class Board {
 
         if(index[0] > 7) {
             index[0] = 7;
-        }
-
-        //account for board rotation
-        if(!game.isWhiteTurn()) {
-//            index[0] =
         }
 
         return index;
@@ -303,7 +281,6 @@ public class Board {
                 }
                 game.move(selectedPiece, gridIndex, soundEffectsController);
                 setIndicatorsOnTop();
-                isBoardFacingWhite.setValue(!selectedPiece.isWhite());
             }
 
             try {
@@ -329,7 +306,7 @@ public class Board {
         if(piece != null) {
             this.selectedPiece = piece;
 
-            if(piece.isWhite() && isBoardFacingWhite.getValue() || !piece.isWhite() && !isBoardFacingWhite.getValue()) {
+            if(piece.isWhite() && game.isWhiteTurn() || !piece.isWhite() && !game.isWhiteTurn()) {
                 if(!game.isInCheck()) {
                     this.currentMoves.addAll(piece.getLegalMoves(board));
                 } else {
@@ -365,9 +342,6 @@ public class Board {
         this.cells[column][row].removeImageView();
     }
 
-    public void setIsBoardFacingWhite(boolean isBoardFacingWhite) {
-        this.isBoardFacingWhite.set(isBoardFacingWhite);
-    }
 
 
 }

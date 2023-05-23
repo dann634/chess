@@ -5,9 +5,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public abstract class Piece {
 
     protected byte row;
@@ -23,6 +23,7 @@ public abstract class Piece {
     }
 
     //Moves
+    @SuppressWarnings("unused")
     protected abstract List<byte[]> getAllMoves();
 
     public abstract List<byte[]> getValidMoves(Piece[][] board);
@@ -70,14 +71,7 @@ public abstract class Piece {
     protected void removePinnedMoves(List<byte[]> moves, Piece[][] board) {
         King king = Game.getKing(this.isWhite);
 
-        Iterator<byte[]> iterator = moves.listIterator();
-        while(iterator.hasNext()) {
-            byte[] move = iterator.next();
-            if(tempMoveAndCheck(move, board, king)) {
-                iterator.remove();
-            }
-
-        }
+        moves.removeIf(move -> tempMoveAndCheck(move, board, king));
     }
 
     private boolean tempMoveAndCheck(byte[] move, Piece[][] board, King king) {
@@ -206,10 +200,7 @@ public abstract class Piece {
             return false;
         }
 
-        if(piece1.isWhite == piece2.isWhite) {
-            return true;
-        }
-        return false;
+        return piece1.isWhite == piece2.isWhite;
     }
 
 

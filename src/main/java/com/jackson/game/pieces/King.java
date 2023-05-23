@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.ToDoubleBiFunction;
 
 public class King extends Piece {
 
@@ -169,8 +167,8 @@ public class King extends Piece {
 
             if (targetPiece != null) {
                 String className = targetPiece.getClass().getSimpleName();
-                if (isPieceSameColour(this, targetPiece)) { //friendly piece
-                } else { //enemy piece
+                if (!isPieceSameColour(this, targetPiece)) {
+                //enemy piece
 
                     if (className.equals("Queen")) { //Queen can attack from straight and diagonal
                         return true;
@@ -180,9 +178,8 @@ public class King extends Piece {
                         return true;
                     }
 
-                    if (!isDiagonal && className.equals("Rook")) { //Straight
-                        return true;
-                    }
+                    //Straight
+                    return className.equals("Rook");
 
                 }
                 return false;

@@ -2,7 +2,7 @@
     -fx-pref-width: 600;
     -fx-pref-height: 600;
     -fx-alignment: center;
-    -fx-spacing: 12
+    -fx-spacing: 24
 }
 
 #btn {
@@ -13,4 +13,8 @@
 #title {
     -fx-font-weight: bold;
     -fx-font-size: 36;
+}
+
+#moveLabel {
+    -fx-font-size: 30;
 }

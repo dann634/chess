@@ -1,16 +1,14 @@
 package com.jackson.game.pieces;
 
-import com.jackson.game.Game;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Rook extends Piece {
 
     private boolean canCastle;
-    private boolean isKingSide;
+    private final boolean isKingSide;
 
-    private List<byte[]> offsetList;
+    private final List<byte[]> offsetList;
 
     public Rook(byte row, byte column, boolean isWhite) {
         super(row, column, isWhite);
@@ -33,8 +31,7 @@ public class Rook extends Piece {
 
     @Override
     public List<byte[]> getValidMoves(Piece[][] board) {
-        List<byte[]> moves = generateLinearMoves(this.offsetList, board, false);
-        return moves;
+        return generateLinearMoves(this.offsetList, board, false);
     }
 
     @Override

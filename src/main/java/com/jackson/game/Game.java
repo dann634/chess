@@ -5,8 +5,6 @@ import com.jackson.main.Main;
 import com.jackson.ui.Board;
 import com.jackson.ui.EndGameController;
 import com.jackson.ui.SoundEffectsController;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -26,7 +24,7 @@ public class Game {
     private static Player white;
     private static Player black;
 
-    private BooleanProperty isWhiteTurn;
+    private boolean isWhiteTurn;
 
     private Piece[][] basicBoard;
 
@@ -43,15 +41,18 @@ public class Game {
 
     private Rook castlingRook;
 
+    private int moveCounter;
+
 
 
     //Game Flow
     public void start() {
+        this.moveCounter = 0;
         this.inCheck = false;
         this.basicBoard = new Piece[8][8];
         this.stage = Main.getStage();
         this.board = new Board(this.stage, this.basicBoard, this);
-        isWhiteTurn = initTurnProperty();
+        isWhiteTurn = true;
 
         white = new Player(true);
         black = new Player(false);
@@ -69,31 +70,6 @@ public class Game {
         start();
     }
 
-
-
-    public static void rotateAllPieces(short rotation) {
-        for(Piece piece : getAllPieces()) {
-            piece.getImageView().setRotate(rotation);
-        }
-    }
-
-    private SimpleBooleanProperty initTurnProperty() {
-        SimpleBooleanProperty property = new SimpleBooleanProperty(true);
-        property.addListener((observableValue, aBoolean, t1) -> {
-            white.setPiecesEnabled(t1);
-            black.setPiecesEnabled(!t1);
-            board.setIsBoardFacingWhite(!t1);
-        });
-        return property;
-    }
-
-
-    // TODO: 28/03/2023 Add isWhiteTurnProperty
-
-
-    public Piece[][] getBasicBoard() {
-        return basicBoard;
-    }
 
     public void move(Piece selectedPiece, byte[] move , SoundEffectsController soundEffectsController) {
 
@@ -138,6 +114,7 @@ public class Game {
 
         /*
         Updates move variables for players
+        Increments move counter
          */
         updateTurns(selectedPiece);
 
@@ -206,7 +183,7 @@ public class Game {
 
         if(this.isGameOver) {
             //Go to end game screen
-            stage.setScene(new EndGameController().getScene(winReason, piece.isWhite()));
+            stage.setScene(new EndGameController().getScene(winReason, piece.isWhite(), moveCounter));
         }
 
     }
@@ -266,19 +243,14 @@ public class Game {
     }
 
     private void updateTurns(Piece piece) {
-        isWhiteTurn.setValue(!piece.isWhite());
+        this.isWhiteTurn = !piece.isWhite();
+        if(piece.isWhite()) {
+            moveCounter++;
+        }
     }
 
 
     //Get Pieces / Moves
-
-    public static List<Piece> getAllPieces() {
-        List<Piece> allPieces = new ArrayList<>();
-        allPieces.addAll(white.getPieces());
-        allPieces.addAll(black.getPieces());
-
-        return allPieces;
-    }
 
     public static Set<byte[]> getAllEnemyMoves(boolean isWhite, Piece[][] board, boolean isProtected) { // FIXME: 22/05/2023
         Set<byte[]> moves = new HashSet<>();
@@ -494,10 +466,12 @@ public class Game {
 
 
     public boolean isWhiteTurn() {
-        return isWhiteTurn.get();
+        return this.isWhiteTurn;
     }
 
-    public void setIsWhiteTurn(boolean isWhiteTurn) {
-        this.isWhiteTurn.set(isWhiteTurn);
+    public Piece[][] getBasicBoard() {
+        return basicBoard;
     }
+
+
 }

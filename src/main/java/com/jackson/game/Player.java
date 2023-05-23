@@ -43,11 +43,4 @@ public class Player {
         return pieces;
     }
 
-    public void setPiecesEnabled(boolean isEnabled) {
-        for(Piece piece : this.pieces) {
-            piece.getImageView().setDisable(!isEnabled);
-        }
-    }
-
-
 }

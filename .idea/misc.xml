@@ -1,5 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="EntryPointsManager">
+    <entry_points version="2.0">
+      <entry_point TYPE="field" FQNAME="com.jackson.game.pieces.Piece column" />
+      <entry_point TYPE="field" FQNAME="com.jackson.game.pieces.Piece imageView" />
+      <entry_point TYPE="field" FQNAME="com.jackson.game.pieces.Piece isWhite" />
+      <entry_point TYPE="functional.expression" FQNAME="lambda (areMovesOnBoard)" />
+      <entry_point TYPE="functional.expression" FQNAME="lambda (removePinnedMoves)" />
+      <entry_point TYPE="field" FQNAME="com.jackson.game.pieces.Piece row" />
+    </entry_points>
+    <pattern value="com.jackson.game.pieces.Piece" method="areMovesOnBoard" />
+    <pattern value="com.jackson.game.pieces.Bishop" />
+    <pattern value="com.jackson.ui.Board" />
+    <pattern value="com.jackson.game.pieces.Piece" method="generateLinearMoves" />
+    <pattern value="com.jackson.game.pieces.Bishop" method="getAllMoves" />
+    <pattern value="com.jackson.game.pieces.Piece" method="getAllMoves" />
+    <pattern value="com.jackson.game.pieces.Queen" method="getAllMoves" />
+    <pattern value="com.jackson.game.pieces.Rook" method="getAllMoves" />
+    <pattern value="com.jackson.game.pieces.King" method="getCheckMoves" />
+    <pattern value="com.jackson.game.pieces.Piece" method="getCheckMoves" />
+    <pattern value="com.jackson.game.pieces.Piece" method="getColumn" />
+    <pattern value="com.jackson.game.pieces.Piece" method="getImageView" />
+    <pattern value="com.jackson.game.pieces.Bishop" method="getLegalMoves" />
+    <pattern value="com.jackson.game.pieces.King" method="getLegalMoves" />
+    <pattern value="com.jackson.game.pieces.Knight" method="getLegalMoves" />
+    <pattern value="com.jackson.game.pieces.Pawn" method="getLegalMoves" />
+    <pattern value="com.jackson.game.pieces.Piece" method="getLegalMoves" />
+    <pattern value="com.jackson.game.pieces.Queen" method="getLegalMoves" />
+    <pattern value="com.jackson.game.pieces.Rook" method="getLegalMoves" />
+    <pattern value="com.jackson.ui.Board" method="getRightMenu" />
+    <pattern value="com.jackson.game.pieces.Piece" method="getRow" />
+    <pattern value="com.jackson.game.pieces.Bishop" method="getSquaresProtected" />
+    <pattern value="com.jackson.game.pieces.King" method="getSquaresProtected" />
+    <pattern value="com.jackson.game.pieces.Knight" method="getSquaresProtected" />
+    <pattern value="com.jackson.game.pieces.Pawn" method="getSquaresProtected" />
+    <pattern value="com.jackson.game.pieces.Piece" method="getSquaresProtected" />
+    <pattern value="com.jackson.game.pieces.Queen" method="getSquaresProtected" />
+    <pattern value="com.jackson.game.pieces.Rook" method="getSquaresProtected" />
+    <pattern value="com.jackson.game.pieces.Bishop" method="getValidMoves" />
+    <pattern value="com.jackson.game.pieces.Piece" method="getValidMoves" />
+    <pattern value="com.jackson.game.pieces.Queen" method="getValidMoves" />
+    <pattern value="com.jackson.game.pieces.Rook" method="getValidMoves" />
+    <pattern value="com.jackson.main.Main" />
+    <pattern value="com.jackson.game.pieces.Piece" method="initImageView" />
+    <pattern value="com.jackson.game.pieces.Piece" method="isPieceSameColour" />
+    <pattern value="com.jackson.game.pieces.Piece" method="isWhite" />
+    <pattern value="com.jackson.game.pieces.King" />
+    <pattern value="com.jackson.game.pieces.Knight" />
+    <pattern value="com.jackson.game.pieces.Pawn" />
+    <pattern value="com.jackson.game.pieces.Piece" />
+    <pattern value="com.jackson.game.pieces.Piece" method="Piece" />
+    <pattern value="com.jackson.game.pieces.Queen" />
+    <pattern value="com.jackson.game.pieces.Piece" method="removeCellsOccupiedByFriendly" />
+    <pattern value="com.jackson.game.pieces.Piece" method="removePinnedMoves" />
+    <pattern value="com.jackson.game.pieces.Rook" />
+    <pattern value="com.jackson.game.pieces.Piece" method="setColumn" />
+    <pattern value="com.jackson.game.pieces.Piece" method="setRow" />
+    <pattern value="com.jackson.main.Main" method="start" />
+    <pattern value="com.jackson.game.pieces.Piece" method="tempMoveAndCheck" />
+  </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="MavenProjectsManager">
     <option name="originalFiles">

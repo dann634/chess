@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Bishop extends Piece {
 
-    private List<byte[]> offsetList;
+    private final List<byte[]> offsetList;
     public Bishop(byte row, byte column, boolean isWhite) {
         super(row, column, isWhite);
         this.offsetList = new ArrayList<>();
@@ -23,8 +23,7 @@ public class Bishop extends Piece {
 
     @Override
     public List<byte[]> getValidMoves(Piece[][] board) {
-        List<byte[]> moves = generateLinearMoves(this.offsetList, board, false);
-        return moves;
+        return generateLinearMoves(this.offsetList, board, false);
     }
 
     @Override
