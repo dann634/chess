@@ -21,33 +21,38 @@ import java.util.Set;
 
 public class Game {
 
+    //Player Variables
     private static Player white;
     private static Player black;
 
-    private boolean isWhiteTurn;
-
+    //Important Variables
     private Piece[][] basicBoard;
-
     private Board board;
-    private boolean inCheck;
     private Stage stage;
 
+    //Game Variables
+    private boolean inCheck;
     private boolean isGameOver;
     private String winReason;
     private boolean isPieceCaptured;
+    private boolean isWhiteTurn;
 
+    //Castling Variables
     private boolean isCastleMove;
     private boolean isKingSide;
-
     private Rook castlingRook;
 
+    //Move List Variables
     private int moveCounter;
-
+    private List<Move> moveList;
+    private byte[] oldPos;
 
 
     //Game Flow
     public void start() {
         this.moveCounter = 0;
+        this.moveList = new ArrayList<>();
+        this.isGameOver = false;
         this.inCheck = false;
         this.basicBoard = new Piece[8][8];
         this.stage = Main.getStage();
@@ -75,6 +80,7 @@ public class Game {
 
         /*
         - Saves if piece was captured (flag for sound)
+        - Saves old position for move list
         - Sets previous location to null
         - Moves selectedPiece to new position on Piece[][]
         - Updates selectedPiece row and column to new position
@@ -114,7 +120,7 @@ public class Game {
 
         /*
         Updates move variables for players
-        Increments move counter
+        Updates Move List
          */
         updateTurns(selectedPiece);
 
@@ -126,10 +132,10 @@ public class Game {
 
     private void movePieces(Piece piece, byte[] move) {
 
-
         isMoveCastle(piece, move);
 
         //Normal Movement
+        this.oldPos = new byte[]{piece.getColumn(), piece.getRow()};
 
         if(this.isCastleMove) {
             return;
@@ -171,6 +177,8 @@ public class Game {
                 //Go to end game screen
                 isGameOver = true;
                 this.winReason = "checkmate";
+                byte[] newPos = new byte[]{piece.getColumn(), piece.getRow()};
+                this.moveList.add(new Move(this.oldPos, newPos, piece.getClass().getSimpleName(), this.isPieceCaptured, this.isCastleMove, this.isKingSide, true, true));
             }
             this.inCheck = true;
             board.highlightCheck(enemyKing);
@@ -178,12 +186,14 @@ public class Game {
             if(getAllEnemyMoves(piece.isWhite(), basicBoard, false).isEmpty()) {
                 isGameOver = true;
                 this.winReason = "stalemate";
+
+
             }
         }
 
         if(this.isGameOver) {
             //Go to end game screen
-            stage.setScene(new EndGameController().getScene(winReason, piece.isWhite(), moveCounter));
+            stage.setScene(new EndGameController().getScene(winReason, piece.isWhite(), moveList));
         }
 
     }
@@ -247,6 +257,13 @@ public class Game {
         if(piece.isWhite()) {
             moveCounter++;
         }
+        boolean isCheckmate = false;
+        if(this.isGameOver && winReason.equals("checkmate")) {
+            isCheckmate = true;
+        }
+        byte[] newPos = new byte[]{piece.getColumn(), piece.getRow()};
+        this.moveList.add(new Move(this.oldPos, newPos, piece.getClass().getSimpleName(), this.isPieceCaptured, this.isCastleMove, this.isKingSide, this.inCheck, isCheckmate));
+
     }
 
 

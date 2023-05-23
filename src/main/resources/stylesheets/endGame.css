@@ -17,4 +17,12 @@
 
 #moveLabel {
     -fx-font-size: 30;
+    -fx-font-weight: bold;
+    -fx-padding: 15;
+}
+
+#moveHBox {
+    -fx-pref-height: 30;
+    -fx-pref-width: inherit;
+    -fx-alignment: center;
 }
