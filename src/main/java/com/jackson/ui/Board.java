@@ -255,16 +255,9 @@ public class Board {
         @Override
         public void handle(MouseEvent mouseEvent) {
             //Show moves
-            //Take Piece imageview and make it follow mouse (use property)
-//            System.out.println("------");
-//            System.out.println("(" + mouseEvent.getSceneX() + "," + mouseEvent.getSceneY() + ")");
-
-
+            //Take Piece imageview and make it follow mouse
             if(!isPieceTakenHostage) {
                 showMoves(mouseEvent);
-                isPieceTakenHostage = true;
-
-                // TODO: 22/05/2023 remove imageview from board while takenHostage
 
                 byte[] gridIndex = getGridIndexFromMousePos(mouseEvent.getSceneX(), mouseEvent.getSceneY());
 
@@ -272,7 +265,8 @@ public class Board {
                 if(piece != null) {
                     floatingPiece.setImage(piece.getImageView().getImage());
                     floatingPiece.setVisible(true);
-//                    removeImageView(selectedPiece.getColumn(), selectedPiece.getRow());
+                    isPieceTakenHostage = true;
+                    removeImageView(selectedPiece.getColumn(), selectedPiece.getRow());
                 }
             }
             floatingPiece.setX(mouseEvent.getSceneX());
@@ -287,7 +281,6 @@ public class Board {
         @Override
         public void handle(MouseEvent mouseEvent) {
             //Move piece
-            isPieceTakenHostage = false;
             floatingPiece.setVisible(false);
             byte[] gridIndex = getGridIndexFromMousePos(mouseEvent.getSceneX(), mouseEvent.getSceneY());
             boolean validSquare = false;
@@ -297,16 +290,31 @@ public class Board {
                     break;
                 }
             }
+
+
+
             if(validSquare) {
                 //Move Piece
                 if(board[gridIndex[0]][gridIndex[1]] != null) {
                     removeImageView(gridIndex[0], gridIndex[1]); //Remove ImageView of Piece about to be eaten
                 }
+                if(!isPieceTakenHostage) {
+                    removeImageView(selectedPiece.getColumn(), selectedPiece.getRow());
+                }
                 game.move(selectedPiece, gridIndex, soundEffectsController);
-                addImageView(selectedPiece.getImageView(), selectedPiece.getColumn(), selectedPiece.getRow());//Remove imageview from prev location
                 setIndicatorsOnTop();
                 isBoardFacingWhite.setValue(!selectedPiece.isWhite());
             }
+
+            try {
+                addImageView(selectedPiece.getImageView(), selectedPiece.getColumn(), selectedPiece.getRow());//Remove imageview from prev location
+            } catch (Exception ignored) {
+                //I cba to do the logic for this
+                //It gets angry for duplicates on gridpane
+            }
+            isPieceTakenHostage = false;
+
+
         }
     }
 
@@ -317,10 +325,11 @@ public class Board {
         Piece[][] board = game.getBasicBoard();
         Piece piece = board[index[0]][index[1]];
 
+        this.selectedPiece = null;
         if(piece != null) {
+            this.selectedPiece = piece;
 
             if(piece.isWhite() && isBoardFacingWhite.getValue() || !piece.isWhite() && !isBoardFacingWhite.getValue()) {
-                this.selectedPiece = piece;
                 if(!game.isInCheck()) {
                     this.currentMoves.addAll(piece.getLegalMoves(board));
                 } else {

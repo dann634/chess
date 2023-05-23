@@ -374,6 +374,7 @@ public class Game {
     }
 
     private Button createPromoteButton(Piece piece, Piece oldPiece, Stage promotionStage) {
+        // FIXME: 23/05/2023 when a piece promotes all pieces of that type are undefendable
         ImageView imageView = piece.getImageView();
         Button btn = new Button();
 
