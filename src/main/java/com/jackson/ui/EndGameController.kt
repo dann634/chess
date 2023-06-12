@@ -37,9 +37,6 @@ class EndGameController {
         val title = Label(titleText)
         title.id = "title"
 
-        //Move Label
-//        val moveLabel = Label("Moves: $moveCounter")
-//        moveLabel.id = "moveLabel"
 
         val hBox = HBox(12.0)
         hBox.alignment = Pos.CENTER
@@ -47,9 +44,6 @@ class EndGameController {
 
         vBox.children.addAll(title, hBox)
 
-        //Move List
-        val moveListTitle = Label("Move List")
-        moveListTitle.id = "moveLabel"
 
         val scrollPaneVbox = VBox()
         scrollPaneVbox.alignment = Pos.CENTER
@@ -57,6 +51,11 @@ class EndGameController {
         val scrollPane = ScrollPane()
         scrollPane.content = scrollPaneVbox
         scrollPane.prefWidth = 200.0
+        scrollPaneVbox.prefWidthProperty().bind(scrollPane.widthProperty()) // FIXME: NOT CENTERED
+
+        //Move List
+        val moveListTitle = Label("Move List")
+        moveListTitle.id = "moveLabel"
 
         scrollPaneVbox.children.addAll(moveListTitle)
         for(i in 0..moveList.size step 2) {
@@ -79,6 +78,7 @@ class EndGameController {
         }
 
         val rootHBox = HBox()
+        rootHBox.maxHeight(600.0)
         rootHBox.children.addAll(scrollPane, vBox)
 
         val scene = Scene(rootHBox)
@@ -109,27 +109,5 @@ class EndGameController {
 
     }
 
-    private fun createMoveHBox(index : Int) : HBox {
-        val hBox = HBox(10.0)
-        hBox.id = "moveHBox"
-
-
-        val index1 = (index / 2) + 1
-        val moveNumberLabel = Label("$index1.")
-
-        var label = Label(this.moveList[index].generateMoveString())
-        var label1 : Label? = null
-        try {
-            label1 = Label(this.moveList[index + 1].generateMoveString())
-        } catch (ignored : ArrayIndexOutOfBoundsException) {}
-
-        if(label1 != null) {
-            hBox.children.addAll(moveNumberLabel, label, label1)
-        } else {
-            hBox.children.addAll(moveNumberLabel, label)
-        }
-
-        return hBox
-    }
 
 }

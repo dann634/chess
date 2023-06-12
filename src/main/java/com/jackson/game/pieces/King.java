@@ -130,6 +130,7 @@ public class King extends Piece {
         }
 
         List<byte[]> offsets = new ArrayList<>(); // FIXME: 09/05/2023 diagonals causing the checking issue
+        // FIXME: 12/06/2023 Two rooks can check for no reason check marc disc for img
         offsets.add(new byte[]{1, 0});
         offsets.add(new byte[]{-1, 0});
         offsets.add(new byte[]{0, 1});
